@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Padrão Elétrica – Agendar</title>
+<meta name="theme-color" content="#1565C0">
+<style>
+:root {
+  --primary: #1565C0;
+  --primary-dark: #0D47A1;
+  --primary-light: #E3F2FD;
+  --accent: #FF6F00;
+  --green: #2E7D32;
+  --green-light: #E8F5E9;
+  --red: #C62828;
+  --bg: #F4F6F9;
+  --card: #FFFFFF;
+  --border: #E0E0E0;
+  --text: #1a1a1a;
+  --text2: #616161;
+  --text3: #9E9E9E;
+  --zap: #25D366;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* ── HEADER ── */
+#header{background:#fff;border-bottom:2px solid var(--border);padding:0 16px;position:sticky;top:0;z-index:30}
+.header-inner{max-width:540px;margin:0 auto}
+.header-top{display:flex;align-items:center;gap:12px;padding:14px 0 12px}
+.brand-logo{width:38px;height:38px;border-radius:10px;background:var(--accent);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:17px;flex-shrink:0}
+.brand-name{font-weight:700;font-size:15px;flex:1}
+.user-chip{width:34px;height:34px;border-radius:50%;background:var(--primary-light);color:var(--primary);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;cursor:pointer;border:2px solid var(--primary);flex-shrink:0}
+
+/* STEPPER BARRA */
+.stepper{display:flex;gap:4px;padding-bottom:0;position:relative}
+.step-seg{height:3px;flex:1;background:var(--border);border-radius:3px;overflow:hidden;transition:background .3s}
+.step-seg.done{background:var(--primary)}
+.step-seg.active{background:var(--primary)}
+.step-seg.half{background:linear-gradient(to right,var(--primary) 60%,var(--border) 60%)}
+
+/* ── BODY ── */
+#app{max-width:540px;margin:0 auto;padding:20px 16px 100px}
+
+/* BACK LINK */
+.back-link{display:inline-flex;align-items:center;gap:5px;font-size:13.5px;color:var(--text2);cursor:pointer;margin-bottom:16px;user-select:none;font-weight:500}
+.back-link:hover{color:var(--primary)}
+.back-link svg{width:16px;height:16px;fill:currentColor}
+
+/* TÍTULOS */
+.step-title{font-size:20px;font-weight:700;margin-bottom:3px;color:var(--text)}
+.step-sub{font-size:13px;color:var(--text2);margin-bottom:20px}
+.step-sub b{color:var(--accent)}
+.step-sub a{color:var(--primary)}
+
+/* ── CARDS DE SERVIÇO ── */
+.srv-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:10px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:border-color .15s,box-shadow .15s;position:relative}
+.srv-card:hover{border-color:var(--primary);box-shadow:0 2px 12px rgba(21,101,192,.1)}
+.srv-img{width:46px;height:46px;border-radius:10px;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;overflow:hidden}
+.srv-img img{width:100%;height:100%;object-fit:cover}
+.srv-body{flex:1;min-width:0}
+.srv-name{font-size:14.5px;font-weight:700;color:var(--text)}
+.srv-desc{font-size:12px;color:var(--accent);margin-top:2px}
+.srv-meta{font-size:13px;color:var(--primary);font-weight:600;margin-top:4px;display:flex;align-items:center;gap:8px}
+.srv-meta .dur{color:var(--text3);font-weight:400;font-size:12px;display:flex;align-items:center;gap:3px}
+.srv-meta .dur svg{width:12px;height:12px;fill:var(--text3)}
+
+/* ── CALENDÁRIO MENSAL ── */
+.cal-wrap{background:#fff;border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:10px}
+.cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.cal-month{font-size:16px;font-weight:700;text-transform:capitalize}
+.cal-nav{width:32px;height:32px;border:none;background:none;cursor:pointer;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--text2);transition:background .15s}
+.cal-nav:hover{background:var(--bg)}
+.cal-nav svg{width:18px;height:18px;fill:currentColor}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.cal-dow{text-align:center;font-size:11px;font-weight:600;color:var(--text3);padding:4px 0;text-transform:capitalize}
+.cal-cell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:13px;cursor:default;color:var(--text3);transition:all .15s;font-weight:500;border:none;background:none}
+.cal-cell.avail{color:var(--text);cursor:pointer;font-weight:600}
+.cal-cell.avail:hover{background:var(--primary-light);color:var(--primary)}
+.cal-cell.today{color:var(--primary);font-weight:700}
+.cal-cell.selected{background:var(--primary);color:#fff !important;font-weight:700}
+.cal-cell.past{color:#ccc;pointer-events:none}
+.cal-cell.other-month{opacity:0}
+
+/* ── LISTA DE HORÁRIOS ── */
+.time-list{display:flex;flex-direction:column;gap:8px}
+.time-item{background:#fff;border:1px solid var(--border);border-radius:10px;padding:13px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:border-color .15s,background .15s}
+.time-item:hover{border-color:var(--primary);background:var(--primary-light)}
+.time-item-left{display:flex;align-items:center;gap:10px}
+.time-item-left svg{width:16px;height:16px;fill:var(--text3);flex-shrink:0}
+.time-hour{font-size:14.5px;font-weight:700;color:var(--text)}
+.time-prof{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text2)}
+.time-prof svg{width:14px;height:14px;fill:var(--text3)}
+
+/* ── RESUMO / CARRINHO ── */
+.resumo-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:10px;position:relative}
+.resumo-card-header{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.resumo-img{width:40px;height:40px;border-radius:8px;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;overflow:hidden}
+.resumo-img img{width:100%;height:100%;object-fit:cover}
+.resumo-name{font-size:14px;font-weight:700}
+.resumo-info{font-size:12px;color:var(--text2);margin-top:3px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.resumo-info span{display:flex;align-items:center;gap:3px}
+.resumo-info svg{width:12px;height:12px;fill:var(--text3)}
+.resumo-preco{font-size:14px;font-weight:700;color:var(--primary);margin-top:6px}
+.resumo-remove{position:absolute;top:14px;right:14px;width:24px;height:24px;border:1px solid var(--border);background:#fff;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--text3);transition:all .15s}
+.resumo-remove:hover{background:var(--red);color:#fff;border-color:var(--red)}
+.total-row{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;font-size:15px;font-weight:700}
+.total-row span:last-child{color:var(--primary)}
+.add-srv-btn{border:2px dashed var(--primary);background:transparent;color:var(--primary);border-radius:10px;padding:13px;width:100%;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:10px;transition:background .15s}
+.add-srv-btn:hover{background:var(--primary-light)}
+
+/* ── CONFIRMAÇÃO ── */
+.confirm-card{background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:20px}
+.confirm-row{display:flex;align-items:center;justify-content:space-between;padding:13px 18px;border-bottom:1px solid var(--border)}
+.confirm-row:last-child{border-bottom:none}
+.confirm-label{font-size:13.5px;color:var(--primary);font-weight:500}
+.confirm-val{font-size:13.5px;color:var(--text);font-weight:600;text-align:right}
+.confirm-val.price{color:var(--primary);font-size:15px;font-weight:700}
+
+/* ── BOTÕES ── */
+.btn{width:100%;padding:15px;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;transition:opacity .15s,transform .1s;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{opacity:.9}
+.btn-zap{background:var(--zap);color:#fff}
+.btn-ghost{background:#fff;color:var(--text2);border:1.5px solid var(--border)}
+.btn-ghost:hover{background:var(--bg)}
+.btn-sm{padding:10px 14px;font-size:13px;border-radius:8px;width:auto}
+
+/* ── SUCCESS ── */
+.success-wrap{text-align:center;padding:30px 0 20px}
+.success-icon{width:76px;height:76px;border-radius:50%;background:var(--green-light);display:flex;align-items:center;justify-content:center;font-size:38px;margin:0 auto 18px}
+.success-title{font-size:22px;font-weight:700;margin-bottom:8px}
+.success-sub{font-size:13.5px;color:var(--text2);margin-bottom:24px;line-height:1.6}
+
+/* ── FORM ── */
+.form-group{margin-bottom:16px}
+.form-label{font-size:13px;font-weight:600;margin-bottom:6px;display:block}
+.form-input{width:100%;padding:13px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:15px;font-family:inherit;color:var(--text);outline:none;transition:border .15s;background:#fff}
+.form-input:focus{border-color:var(--primary)}
+.phone-row{display:flex;gap:8px}
+.phone-prefix{display:flex;align-items:center;gap:5px;padding:0 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-weight:600;color:var(--text2);background:#fafafa;flex-shrink:0;white-space:nowrap}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:flex;align-items:flex-end;justify-content:center;padding:0;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-overlay.open{opacity:1;pointer-events:auto}
+.modal{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:540px;padding:24px 22px 36px;transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1)}
+.modal-overlay.open .modal{transform:translateY(0)}
+.modal-handle{width:40px;height:4px;background:var(--border);border-radius:4px;margin:0 auto 20px}
+.modal-title{font-size:18px;font-weight:700;margin-bottom:6px}
+.modal-sub{font-size:13px;color:var(--text2);margin-bottom:20px;line-height:1.5}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(12px);background:#222;color:#fff;padding:12px 22px;border-radius:10px;font-size:13.5px;font-weight:500;z-index:300;opacity:0;transition:all .25s;pointer-events:none;max-width:90%;text-align:center;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* EMPTY */
+.empty{text-align:center;padding:50px 16px;color:var(--text3)}
+.empty .eicon{font-size:44px;margin-bottom:14px}
+.empty p{font-size:15px;font-weight:600;color:var(--text2);margin-bottom:4px}
+.empty span{font-size:13px}
+
+/* HINT */
+.hint{font-size:12px;color:var(--text3);text-align:center;margin-top:10px;line-height:1.5}
+
+@media(min-width:540px){
+  .modal-overlay{align-items:center;padding:20px}
+  .modal{border-radius:16px;max-height:90vh;overflow-y:auto}
+  .modal-overlay.open .modal{transform:translateY(0)}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div id="header">
+  <div class="header-inner">
+    <div class="header-top">
+      <div class="brand-logo" id="brand-logo">P</div>
+      <div class="brand-name" id="brand-name">Padrão Elétrica</div>
+      <div class="user-chip" id="user-chip" style="display:none" onclick="abrirPerfil()">P</div>
+    </div>
+    <div class="stepper" id="stepper">
+      <div class="step-seg" id="seg-1"></div>
+      <div class="step-seg" id="seg-2"></div>
+      <div class="step-seg" id="seg-3"></div>
+      <div class="step-seg" id="seg-4"></div>
+      <div class="step-seg" id="seg-5"></div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTEÚDO DINÂMICO -->
+<div id="app"></div>
+
+<!-- MODAL LOGIN -->
+<div class="modal-overlay" id="modal-login">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Entrar com WhatsApp</div>
+    <div class="modal-sub">Informe seu nome e número para identificar o agendamento. Você receberá a confirmação por aqui.</div>
+    <div class="form-group">
+      <label class="form-label">Seu nome</label>
+      <input class="form-input" id="login-nome" placeholder="Como podemos te chamar?" autocomplete="name">
+    </div>
+    <div class="form-group">
+      <label class="form-label">WhatsApp (com DDD)</label>
+      <div class="phone-row">
+        <div class="phone-prefix">🇧🇷 +55</div>
+        <input class="form-input" id="login-zap" type="tel" placeholder="(84) 9 0000-0000" maxlength="16" oninput="maskPhone(this)" autocomplete="tel">
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="fazerLogin()" style="margin-top:4px">Continuar</button>
+    <p class="hint" style="margin-top:12px">Ao continuar você confirma que este WhatsApp é seu.</p>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ═══════════════════════════════════════════════════════════════════
+// STORAGE — Supabase (compartilhado de verdade com o painel admin)
+// ═══════════════════════════════════════════════════════════════════
+const SUPABASE_URL = 'https://cbcphjxlpkgmoevlabsh.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_Tjv6xV_-rNVUrMl09Lx3-Q_8BM8JdMR';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const state = {
+  servicos: [], agendamentos: [], solicitacoes: [],
+  profissionais: [], transacoes: [], clientes: [],
+  config: {
+    nome: 'Padrão Elétrica', link: 'padraoeletrica', zap: '',
+    desc: 'Instalações e manutenções elétricas profissionais',
+    cor: '#1565C0', horarios: null,
+    pagamentos: ['Dinheiro','PIX'],
+    msgNotificacao: '', msgConfirmacao: '',
+  }
+};
+
+// Converte uma linha do banco (snake_case) para o formato usado no app (camelCase)
+function configDoBanco(row) {
+  if (!row) return state.config;
+  return {
+    nome: row.nome, link: row.link, zap: row.zap || '',
+    desc: row.desc_ || '', cor: row.cor || '#1565C0',
+    horarios: row.horarios || null,
+    pagamentos: row.pagamentos || ['Dinheiro','PIX'],
+    msgNotificacao: row.msg_notificacao || '',
+    msgConfirmacao: row.msg_confirmacao || '',
+    msgCancelamento: row.msg_cancelamento || '',
+  };
+}
+function solicitacaoDoBanco(row) {
+  return { id: row.id, ts: row.ts, cliente: row.cliente, zap: row.zap,
+    servico: row.servico, icone: row.icone, data: row.data, hora: row.hora,
+    profissional: row.profissional, obs: row.obs, valor: row.valor,
+    status: row.status, origem: row.origem };
+}
+function agendamentoDoBanco(row) {
+  return { id: row.id, origemId: row.origem_id, cliente: row.cliente, zap: row.zap,
+    servico: row.servico, data: row.data, hora: row.hora,
+    profissional: row.profissional, obs: row.obs, valor: row.valor,
+    status: row.status, origem: row.origem };
+}
+
+async function carregar() {
+  try {
+    const [cfg, srv, ags, sols, profs, cls] = await Promise.all([
+      sb.from('config').select('*').eq('id', 1).maybeSingle(),
+      sb.from('servicos').select('*'),
+      sb.from('agendamentos').select('*'),
+      sb.from('solicitacoes').select('*'),
+      sb.from('profissionais').select('*'),
+      sb.from('clientes').select('*'),
+    ]);
+    if (cfg.data) state.config = configDoBanco(cfg.data);
+    if (srv.data) state.servicos = srv.data;
+    if (ags.data) state.agendamentos = ags.data.map(agendamentoDoBanco);
+    if (sols.data) state.solicitacoes = sols.data.map(solicitacaoDoBanco);
+    if (profs.data) state.profissionais = profs.data;
+    if (cls.data) state.clientes = cls.data;
+  } catch(e) { console.error('Erro ao carregar do Supabase:', e); }
+}
+
+// Mantida por compatibilidade — no Supabase cada gravação acontece na hora
+// (em salvarSolicitacao / outras funções específicas), então salvar() aqui
+// só recarrega o estado mais recente do servidor.
+async function salvar() {
+  await carregar();
+}
+
+// Grava uma nova solicitação direto no Supabase
+async function gravarSolicitacao(sol) {
+  await sb.from('solicitacoes').insert({
+    id: sol.id, ts: sol.ts, cliente: sol.cliente, zap: sol.zap,
+    servico: sol.servico, icone: sol.icone, data: sol.data, hora: sol.hora,
+    profissional: sol.profissional, obs: sol.obs, valor: sol.valor,
+    status: sol.status, origem: sol.origem,
+  });
+}
+// Garante que o cliente existe na tabela clientes (upsert simples)
+async function gravarClienteSeNovo(cliente) {
+  const existe = state.clientes.find(c => c.zap === cliente.zap);
+  if (existe) return;
+  await sb.from('clientes').insert({
+    id: cliente.id, nome: cliente.nome, zap: cliente.zap,
+    end_: cliente.end || '', pedidos: cliente.pedidos || 0, gasto: cliente.gasto || 0,
+  });
+}
+
+
+// ═══════════════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════════════
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+function brl(v) { return 'R$ ' + (+v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function fmtDate(d) {
+  if (!d) return '–';
+  const dt = new Date(d + 'T00:00:00');
+  return dt.toLocaleDateString('pt-BR', {day:'2-digit',month:'2-digit',year:'numeric'});
+}
+function fmtDateShort(d) {
+  if (!d) return '–';
+  const dt = new Date(d + 'T00:00:00');
+  return dt.toLocaleDateString('pt-BR', {day:'2-digit',month:'2-digit',year:'numeric'});
+}
+function numZap(n) { return (n||'').replace(/\D/g,''); }
+function zapLink(numero, msg) {
+  return 'https://wa.me/55' + numZap(numero) + '?text=' + encodeURIComponent(msg);
+}
+function toast(msg, dur=2600) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), dur);
+}
+function maskPhone(el) {
+  let v = el.value.replace(/\D/g,'').slice(0,11);
+  if (v.length > 7) v = `(${v.slice(0,2)}) ${v.slice(2,3)} ${v.slice(3,7)}-${v.slice(7)}`;
+  else if (v.length > 2) v = `(${v.slice(0,2)}) ${v.slice(2)}`;
+  el.value = v;
+}
+const DIAS = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+const DIAS_CURTO = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+// SVGs comuns
+const SVG_BACK = `<svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>`;
+const SVG_CAL  = `<svg viewBox="0 0 24 24"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>`;
+const SVG_CLK  = `<svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/></svg>`;
+const SVG_USER = `<svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
+const SVG_NAV_PREV = `<svg viewBox="0 0 24 24"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6z"/></svg>`;
+const SVG_NAV_NEXT = `<svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>`;
+const SVG_PLUS = `<svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>`;
+
+// ═══════════════════════════════════════════════════════════════════
+// SESSÃO
+// ═══════════════════════════════════════════════════════════════════
+let session = { nome: '', zap: '' };
+function carregarSessao() {
+  try { const s = localStorage.getItem('pe_sessao_cliente'); if (s) session = JSON.parse(s); } catch(e) {}
+}
+function salvarSessao() {
+  try { localStorage.setItem('pe_sessao_cliente', JSON.stringify(session)); } catch(e) {}
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// FLUXO
+// ═══════════════════════════════════════════════════════════════════
+// etapas: servico | data | hora | resumo | confirmacao | sucesso
+let etapa = 'servico';
+let loginCb = null;
+
+// carrinho: lista de itens {servicoId, servico, icone, valor, duracao, data, hora, profissional}
+let carrinho = [];
+let carrinhoFinalizado = [];
+// item sendo construído no momento
+let itemAtual = {};
+// mês visível no calendário
+let calAno, calMes;
+
+function setStep(n, total) {
+  for (let i = 1; i <= 5; i++) {
+    const el = document.getElementById('seg-' + i);
+    if (!el) continue;
+    el.className = 'step-seg';
+    if (i < n) el.classList.add('done');
+    else if (i === n) el.classList.add('active');
+  }
+}
+
+function atualizarHeader() {
+  const nome = state.config.nome || 'Padrão Elétrica';
+  document.getElementById('brand-name').textContent = nome;
+  document.getElementById('brand-logo').textContent = nome[0].toUpperCase();
+  if (state.config.cor) document.documentElement.style.setProperty('--primary', state.config.cor);
+  const chip = document.getElementById('user-chip');
+  if (session.nome) {
+    chip.style.display = 'flex';
+    chip.textContent = session.nome[0].toUpperCase();
+  } else {
+    chip.style.display = 'none';
+  }
+}
+
+function ir(e) {
+  etapa = e;
+  window.scrollTo({top:0,behavior:'smooth'});
+  render();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// RENDER PRINCIPAL
+// ═══════════════════════════════════════════════════════════════════
+function render() {
+  const app = document.getElementById('app');
+  if (etapa === 'servico')      { setStep(1,5); renderServico(app); }
+  else if (etapa === 'data')    { setStep(2,5); renderData(app); }
+  else if (etapa === 'hora')    { setStep(3,5); renderHora(app); }
+  else if (etapa === 'resumo')  { setStep(4,5); renderResumo(app); }
+  else if (etapa === 'confirm') { setStep(5,5); renderConfirmacao(app); }
+  else if (etapa === 'sucesso') { setStep(5,5); renderSucesso(app); }
+}
+
+// ─── ETAPA 1: ESCOLHA DO SERVIÇO ──────────────────────────────────
+function renderServico(app) {
+  const servAtivos = (state.servicos||[]).filter(s => s.status === 'ativo');
+  if (!servAtivos.length) {
+    app.innerHTML = `<div class="empty">
+      <div class="eicon">🛠️</div>
+      <p>Nenhum serviço disponível</p>
+      <span>O prestador ainda não cadastrou nenhum serviço ativo. Volte em breve!</span>
+    </div>`;
+    return;
+  }
+  app.innerHTML = `
+    <div class="step-title">Escolha o serviço</div>
+    <div class="step-sub">Selecione o serviço que deseja agendar.</div>
+    ${servAtivos.map(s => `
+      <div class="srv-card" onclick="escolherServico('${s.id}')">
+        <div class="srv-img">${s.icone || '⚡'}</div>
+        <div class="srv-body">
+          <div class="srv-name">${s.nome}</div>
+          ${s.desc ? `<div class="srv-desc">${s.desc}</div>` : ''}
+          <div class="srv-meta">
+            ${brl(s.preco)}
+            <span class="dur">${SVG_CLK} ${s.duracao||60}min</span>
+          </div>
+        </div>
+      </div>`).join('')}
+    <p class="hint">💳 Pagamentos: ${(state.config.pagamentos||['Dinheiro','PIX']).join(' · ')}</p>`;
+}
+
+function escolherServico(id) {
+  const srv = state.servicos.find(s => s.id === id);
+  if (!srv) return;
+  itemAtual = {
+    servicoId: id,
+    servico: srv.nome,
+    icone: srv.icone || '⚡',
+    valor: srv.preco || 0,
+    duracao: srv.duracao || 60,
+    data: '',
+    hora: '',
+    profissional: '',
+  };
+  // Inicializa calendário no mês atual
+  const hoje = new Date();
+  calAno = hoje.getFullYear();
+  calMes = hoje.getMonth();
+  ir('data');
+}
+
+// ─── ETAPA 2: CALENDÁRIO ──────────────────────────────────────────
+function renderData(app) {
+  app.innerHTML = `
+    <div class="back-link" onclick="ir('servico')">${SVG_BACK} Voltar</div>
+    <div class="step-title">Escolha a data</div>
+    <div class="step-sub">Apenas datas com <b>disponibilidade</b> estão habilitadas.</div>
+    <div id="cal-container"></div>`;
+  renderCal();
+}
+
+function renderCal() {
+  const container = document.getElementById('cal-container');
+  if (!container) return;
+
+  const horarios = state.config.horarios || DIAS.map((d,i) => ({dia:d, ativo:i>=1&&i<=6, inicio:'08:00', fim:'18:00'}));
+  const hoje = new Date();
+  hoje.setHours(0,0,0,0);
+  const maxData = new Date(hoje); maxData.setDate(hoje.getDate()+90);
+
+  const primeiroDia = new Date(calAno, calMes, 1);
+  const ultimoDia   = new Date(calAno, calMes+1, 0);
+  const dowInicio   = primeiroDia.getDay(); // 0=dom
+
+  // mês anterior/próximo possível?
+  const podePrev = new Date(calAno, calMes, 1) > hoje;
+  const podeNext = new Date(calAno, calMes+2, 0) <= maxData || true;
+
+  // dias da semana header
+  const dowHeader = ['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'].map(d => `<div class="cal-dow">${d}</div>`).join('');
+
+  // offset: domingo=0, mas grid começa na segunda
+  const offset = (dowInicio + 6) % 7; // segunda=0
+
+  let cells = '';
+  // células vazias antes
+  for (let i = 0; i < offset; i++) cells += `<div class="cal-cell other-month"></div>`;
+
+  for (let dia = 1; dia <= ultimoDia.getDate(); dia++) {
+    const d = new Date(calAno, calMes, dia);
+    d.setHours(0,0,0,0);
+    const dow = d.getDay();
+    const ds  = d.toISOString().split('T')[0];
+    const h   = horarios[dow];
+    const passado = d < hoje;
+    const disponivel = h && h.ativo && !passado;
+    const isHoje = d.getTime() === hoje.getTime();
+
+    let cls = 'cal-cell';
+    if (!disponivel) cls += ' past';
+    else { cls += ' avail'; if (isHoje) cls += ' today'; }
+
+    const onclick = disponivel ? `onclick="escolherData('${ds}','${h.inicio}','${h.fim}')"` : '';
+    cells += `<div class="${cls}" ${onclick}>${dia}</div>`;
+  }
+
+  // células depois
+  const totalCells = offset + ultimoDia.getDate();
+  const resto = totalCells % 7;
+  if (resto > 0) for (let i = 0; i < 7-resto; i++) cells += `<div class="cal-cell other-month"></div>`;
+
+  container.innerHTML = `
+    <div class="cal-wrap">
+      <div class="cal-header">
+        <button class="cal-nav" onclick="navCal(-1)" ${!podePrev?'disabled style="opacity:.3;cursor:not-allowed"':''}>${SVG_NAV_PREV}</button>
+        <div class="cal-month">${MESES[calMes]} ${calAno}</div>
+        <button class="cal-nav" onclick="navCal(1)">${SVG_NAV_NEXT}</button>
+      </div>
+      <div class="cal-grid">
+        ${dowHeader}
+        ${cells}
+      </div>
+    </div>`;
+}
+
+function navCal(dir) {
+  calMes += dir;
+  if (calMes > 11) { calMes = 0; calAno++; }
+  if (calMes < 0)  { calMes = 11; calAno--; }
+  renderCal();
+}
+
+function escolherData(ds, hrI, hrF) {
+  itemAtual.data    = ds;
+  itemAtual.hrInicio = hrI;
+  itemAtual.hrFim   = hrF;
+  ir('hora');
+}
+
+// ─── ETAPA 3: HORÁRIOS ────────────────────────────────────────────
+function renderHora(app) {
+  const srv = state.servicos.find(s => s.id === itemAtual.servicoId);
+  const duracao = srv ? (srv.duracao||60) : 60;
+  const inicio  = itemAtual.hrInicio || '08:00';
+  const fim     = itemAtual.hrFim    || '18:00';
+
+  // profissionais ativos
+  const profsAtivos = (state.profissionais||[]).filter(p => p.ativo);
+
+  // slots disponíveis
+  const ocupadas = (state.agendamentos||[])
+    .filter(a => a.data === itemAtual.data)
+    .map(a => a.hora);
+
+  let slots = [];
+  let [h, m] = inicio.split(':').map(Number);
+  const [hf, mf] = fim.split(':').map(Number);
+  while (h*60+m+duracao <= hf*60+mf) {
+    const slot = String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
+    if (!ocupadas.includes(slot)) slots.push(slot);
+    m += 30; if (m >= 60) { m -= 60; h++; }
+  }
+
+  // linha de info
+  const dt = new Date(itemAtual.data + 'T00:00:00');
+  const dataInfo = `${fmtDateShort(itemAtual.data)} – ${itemAtual.servico}`;
+
+  app.innerHTML = `
+    <div class="back-link" onclick="ir('data')">${SVG_BACK} Voltar</div>
+    <div class="step-title">Escolha o horário</div>
+    <div class="step-sub" style="color:var(--accent)">${dataInfo}</div>
+    ${slots.length === 0
+      ? `<div class="empty"><div class="eicon">🕐</div><p>Sem horários disponíveis</p><span>Escolha outra data.</span></div>`
+      : `<div class="time-list">
+          ${slots.map(s => {
+            // profissional disponível (primeiro ativo ou sem preferência)
+            const prof = profsAtivos.length ? profsAtivos[0].nome : '';
+            return `<div class="time-item" onclick="escolherHora('${s}','${prof}')">
+              <div class="time-item-left">
+                ${SVG_CLK}
+                <span class="time-hour">${s}</span>
+              </div>
+              ${prof ? `<div class="time-prof">${SVG_USER} ${prof}</div>` : ''}
+            </div>`;
+          }).join('')}
+        </div>`
+    }`;
+}
+
+function escolherHora(hora, prof) {
+  itemAtual.hora = hora;
+  itemAtual.profissional = prof;
+  // Adiciona ao carrinho
+  carrinho.push({...itemAtual});
+  ir('resumo');
+}
+
+// ─── ETAPA 4: RESUMO / CARRINHO ───────────────────────────────────
+function renderResumo(app) {
+  const total = carrinho.reduce((s, i) => s + (i.valor||0), 0);
+
+  app.innerHTML = `
+    <div class="step-title">Resumo dos serviços</div>
+    <div class="step-sub">${carrinho.length} serviço${carrinho.length > 1 ? 's' : ''} selecionado${carrinho.length > 1 ? 's' : ''}</div>
+    ${carrinho.map((item, idx) => `
+      <div class="resumo-card">
+        <button class="resumo-remove" onclick="removerItem(${idx})">✕</button>
+        <div class="resumo-card-header">
+          <div class="resumo-img">${item.icone}</div>
+          <div>
+            <div class="resumo-name">${item.servico}</div>
+            <div class="resumo-info">
+              <span>${SVG_CAL} ${fmtDateShort(item.data)}</span>
+              <span>${SVG_CLK} ${item.hora}</span>
+              ${item.profissional ? `<span>${SVG_USER} ${item.profissional}</span>` : ''}
+            </div>
+          </div>
+        </div>
+        <div class="resumo-preco">${brl(item.valor)}</div>
+      </div>`).join('')}
+    <div class="total-row">
+      <span>Total</span>
+      <span>${brl(total)}</span>
+    </div>
+    <button class="add-srv-btn" onclick="adicionarMaisServico()">
+      ${SVG_PLUS} Adicionar mais um serviço
+    </button>
+    <button class="btn btn-primary" onclick="irParaConfirmacao()">Continuar para finalizar</button>`;
+}
+
+function removerItem(idx) {
+  carrinho.splice(idx, 1);
+  if (carrinho.length === 0) { ir('servico'); return; }
+  render();
+}
+
+function adicionarMaisServico() {
+  itemAtual = {};
+  const hoje = new Date();
+  calAno = hoje.getFullYear();
+  calMes = hoje.getMonth();
+  ir('servico');
+}
+
+function irParaConfirmacao() {
+  exigirLogin(() => ir('confirm'));
+}
+
+// ─── ETAPA 5: CONFIRMAÇÃO FINAL ────────────────────────────────────
+function renderConfirmacao(app) {
+  const total = carrinho.reduce((s, i) => s + (i.valor||0), 0);
+  // Usa dados do primeiro item para a tabela (ou de todos se múltiplos)
+  const item0 = carrinho[0];
+
+  app.innerHTML = `
+    <div class="back-link" onclick="ir('resumo')">${SVG_BACK} Voltar</div>
+    <div class="step-title">Confirme o agendamento</div>
+    <div class="step-sub">Você está agendando como <b style="color:var(--text)">${session.nome}</b>.</div>
+    ${carrinho.map(item => `
+      <div class="confirm-card" style="margin-bottom:12px">
+        <div class="confirm-row">
+          <span class="confirm-label">Serviço</span>
+          <span class="confirm-val">${item.icone} ${item.servico}</span>
+        </div>
+        <div class="confirm-row">
+          <span class="confirm-label">Data</span>
+          <span class="confirm-val">${fmtDateShort(item.data)}</span>
+        </div>
+        <div class="confirm-row">
+          <span class="confirm-label">Horário</span>
+          <span class="confirm-val">${item.hora}</span>
+        </div>
+        ${item.profissional ? `
+        <div class="confirm-row">
+          <span class="confirm-label">Profissional</span>
+          <span class="confirm-val">${item.profissional}</span>
+        </div>` : ''}
+        <div class="confirm-row">
+          <span class="confirm-label">Duração</span>
+          <span class="confirm-val">${item.duracao||60}min</span>
+        </div>
+        <div class="confirm-row">
+          <span class="confirm-label">Valor</span>
+          <span class="confirm-val price">${brl(item.valor)}</span>
+        </div>
+      </div>`).join('')}
+    ${carrinho.length > 1 ? `
+      <div class="total-row" style="margin-bottom:20px">
+        <span>Total geral</span><span>${brl(total)}</span>
+      </div>` : ''}
+    <button class="btn btn-primary" onclick="confirmarAgendamento()">Confirmar Agendamento</button>
+    <p class="hint" style="margin-top:12px">Ao confirmar, o prestador será notificado e entrará em contato para confirmação.</p>`;
+}
+
+// ─── SUCESSO ──────────────────────────────────────────────────────
+function renderSucesso(app) {
+  document.querySelectorAll('.step-seg').forEach(s => s.classList.add('done'));
+  const itens = carrinhoFinalizado.length ? carrinhoFinalizado : carrinho;
+  const total = itens.reduce((s, i) => s + (i.valor||0), 0);
+
+  app.innerHTML = `
+    <div class="success-wrap">
+      <div class="success-icon">✅</div>
+      <div class="success-title">Solicitação enviada!</div>
+      <div class="success-sub">
+        Aguarde a confirmação.<br>
+        Em breve <b>${state.config.nome||'o prestador'}</b> entrará em contato pelo WhatsApp.
+      </div>
+      ${itens.map(item => `
+        <div class="confirm-card" style="margin-bottom:10px;text-align:left">
+          <div class="confirm-row">
+            <span class="confirm-label">Serviço</span>
+            <span class="confirm-val">${item.icone} ${item.servico}</span>
+          </div>
+          <div class="confirm-row">
+            <span class="confirm-label">Data</span>
+            <span class="confirm-val">${fmtDateShort(item.data)}</span>
+          </div>
+          <div class="confirm-row">
+            <span class="confirm-label">Horário</span>
+            <span class="confirm-val">${item.hora}</span>
+          </div>
+          ${item.profissional ? `
+          <div class="confirm-row">
+            <span class="confirm-label">Profissional</span>
+            <span class="confirm-val">${item.profissional}</span>
+          </div>` : ''}
+          <div class="confirm-row">
+            <span class="confirm-label">Valor</span>
+            <span class="confirm-val price">${brl(item.valor)}</span>
+          </div>
+        </div>`).join('')}
+      ${itens.length > 1 ? `<div class="total-row" style="margin-bottom:16px"><span>Total</span><span>${brl(total)}</span></div>` : ''}
+      <button class="btn btn-zap" onclick="abrirZap()" style="margin-bottom:10px">
+        💬 Falar agora no WhatsApp
+      </button>
+      <button class="btn btn-ghost" onclick="novoAgendamento()">
+        ← Fazer outro agendamento
+      </button>
+    </div>`;
+}
+
+function novoAgendamento() {
+  carrinho = [];
+  itemAtual = {};
+  ir('servico');
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// AÇÕES
+// ═══════════════════════════════════════════════════════════════════
+async function confirmarAgendamento() {
+  const agora = Date.now();
+  const novasSolicitacoes = [];
+  carrinho.forEach((item, idx) => {
+    const sol = {
+      id: uid(),
+      ts: agora + idx,
+      cliente: session.nome,
+      zap: numZap(session.zap),
+      servico: item.servico,
+      icone: item.icone,
+      data: item.data,
+      hora: item.hora,
+      profissional: item.profissional || '',
+      obs: '',
+      valor: item.valor || 0,
+      status: 'pendente',
+      origem: 'app-cliente',
+    };
+    novasSolicitacoes.push(sol);
+    if (!state.solicitacoes) state.solicitacoes = [];
+    state.solicitacoes.push(sol);
+  });
+
+  // Registra cliente se novo
+  if (!state.clientes) state.clientes = [];
+  const zapNum = numZap(session.zap);
+  const clienteNovo = { id: uid(), nome: session.nome, zap: zapNum, end:'', pedidos:0, gasto:0 };
+  if (!state.clientes.find(c => c.zap === zapNum)) {
+    state.clientes.push(clienteNovo);
+  }
+
+  // Grava de verdade no Supabase
+  try {
+    for (const sol of novasSolicitacoes) await gravarSolicitacao(sol);
+    await gravarClienteSeNovo(clienteNovo);
+  } catch(e) {
+    console.error('Erro ao gravar agendamento:', e);
+    toast('Não foi possível enviar. Verifique sua conexão e tente de novo.');
+    return;
+  }
+
+  // Abre WhatsApp do prestador com mensagem estruturada (igual à imagem 6)
+  if (state.config.zap) {
+    const linhas = carrinho.map(item =>
+      `*Cliente:* ${session.nome}\n*Serviço:* ${item.servico}\n*Data:* ${fmtDateShort(item.data)}\n*Horário:* ${item.hora}\n*Duração:* ${item.duracao||60}min\n*Valor:* ${brl(item.valor)}`
+    ).join('\n\n---\n\n');
+    const msg = `Olá! Acabei de agendar pelo link 📅\n\n${linhas}`;
+    setTimeout(() => window.open(zapLink(state.config.zap, msg), '_blank'), 400);
+  }
+
+  carrinhoFinalizado = [...carrinho];
+  ir('sucesso');
+}
+
+function abrirZap() {
+  if (!state.config.zap) { toast('Prestador não configurou WhatsApp ainda.'); return; }
+  const itens = carrinhoFinalizado.length ? carrinhoFinalizado : carrinho;
+  const msg = `Olá! Acabei de agendar pelo link 📅\n\n*Cliente:* ${session.nome}\n*Serviço:* ${itens.map(i=>i.servico).join(', ')}\n*Data:* ${itens.map(i=>fmtDateShort(i.data)).join(', ')}\n*Horário:* ${itens.map(i=>i.hora).join(', ')}`;
+  window.open(zapLink(state.config.zap, msg), '_blank');
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// LOGIN
+// ═══════════════════════════════════════════════════════════════════
+function exigirLogin(cb) {
+  if (session.nome && session.zap) { cb(); return; }
+  loginCb = cb;
+  document.getElementById('login-nome').value = session.nome || '';
+  document.getElementById('login-zap').value  = session.zap  || '';
+  document.getElementById('modal-login').classList.add('open');
+}
+
+function fazerLogin() {
+  const nome = document.getElementById('login-nome').value.trim();
+  const zap  = document.getElementById('login-zap').value.trim();
+  const digits = numZap(zap);
+  if (!nome) { toast('Informe seu nome'); return; }
+  if (digits.length < 10) { toast('WhatsApp inválido – informe com DDD'); return; }
+  session.nome = nome;
+  session.zap  = zap;
+  salvarSessao();
+  fecharModal('modal-login');
+  atualizarHeader();
+  toast('Olá, ' + nome + '! 👋');
+  if (loginCb) { const cb = loginCb; loginCb = null; cb(); }
+}
+
+function abrirPerfil() {
+  if (!confirm(`Sair da conta de ${session.nome}?`)) return;
+  session = { nome:'', zap:'' };
+  salvarSessao();
+  atualizarHeader();
+  toast('Sessão encerrada.');
+}
+
+function fecharModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// SYNC COM ADMIN (Supabase Realtime — funciona entre dispositivos)
+// ═══════════════════════════════════════════════════════════════════
+sb.channel('app-cliente-sync')
+  .on('postgres_changes', { event: '*', schema: 'public', table: 'servicos' }, async () => {
+    await carregar();
+    if (etapa === 'servico') render();
+  })
+  .on('postgres_changes', { event: '*', schema: 'public', table: 'config' }, async () => {
+    await carregar();
+    atualizarHeader();
+  })
+  .subscribe();
+
+// fechar modal clicando fora
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+
+// ─── INIT ────────────────────────────────────────────────────────
+(async function init() {
+  carregarSessao();
+  atualizarHeader();
+  await carregar();
+  atualizarHeader();
+  render();
+})();
+</script>
+</body>
+</html>

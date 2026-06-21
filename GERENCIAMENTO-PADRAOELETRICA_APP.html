@@ -1,0 +1,1822 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Padrão Elétrica – Gerenciamento de Serviços</title>
+<style>
+:root {
+  --primary: #1565C0;
+  --primary-dark: #0D47A1;
+  --primary-light: #E3F2FD;
+  --accent: #FF6F00;
+  --green: #2E7D32;
+  --green-light: #E8F5E9;
+  --red: #C62828;
+  --red-light: #FFEBEE;
+  --yellow: #F9A825;
+  --yellow-light: #FFFDE7;
+  --bg: #F4F6F9;
+  --card: #FFFFFF;
+  --border: #E0E0E0;
+  --text: #212121;
+  --text2: #616161;
+  --text3: #9E9E9E;
+  --sidebar-w: 220px;
+  --zap: #25D366;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex}
+
+/* SIDEBAR */
+#sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);background:#fff;border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:50;transition:transform .25s}
+.sb-brand{display:flex;align-items:center;gap:10px;padding:18px 16px;border-bottom:1px solid var(--border);cursor:pointer}
+.sb-avatar{width:38px;height:38px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:16px;flex-shrink:0}
+.sb-brand-info{flex:1;overflow:hidden}
+.sb-brand-name{font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-brand-url{font-size:10px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+nav{flex:1;padding:10px 0;overflow-y:auto}
+.nav-item{display:flex;align-items:center;gap:10px;padding:11px 18px;cursor:pointer;font-size:14px;color:var(--text2);border-left:3px solid transparent;transition:background .15s,color .15s}
+.nav-item:hover{background:var(--primary-light);color:var(--primary)}
+.nav-item.active{background:var(--primary-light);color:var(--primary);border-left-color:var(--primary);font-weight:600}
+.nav-item svg{width:18px;height:18px;flex-shrink:0}
+.nav-badge{background:var(--accent);color:#fff;border-radius:10px;font-size:10px;font-weight:700;padding:2px 7px;margin-left:auto}
+
+/* MAIN */
+#main{margin-left:var(--sidebar-w);flex:1;min-height:100vh;display:flex;flex-direction:column}
+.topbar{background:#fff;border-bottom:1px solid var(--border);padding:0 28px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40}
+.topbar-title{font-size:20px;font-weight:700}
+.topbar-sub{font-size:12px;color:var(--accent);margin-top:1px}
+.topbar-link-box{display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:6px 12px;font-size:12px;color:var(--text2);max-width:320px}
+.topbar-link-box span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.topbar-actions{display:flex;gap:6px}
+.icon-btn{width:32px;height:32px;border:1px solid var(--border);border-radius:6px;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .15s}
+.icon-btn:hover{background:var(--primary-light)}
+.icon-btn svg{width:16px;height:16px;fill:var(--text2)}
+.page{padding:24px 28px;flex:1;display:none}
+.page.active{display:block}
+
+/* CARDS */
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px}
+.grid4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:16px;margin-bottom:16px}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:7px;font-size:14px;font-weight:600;cursor:pointer;border:none;transition:opacity .15s,transform .1s}
+.btn:hover{opacity:.88;transform:translateY(-1px)}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-outline{background:#fff;color:var(--text);border:1px solid var(--border)}
+.btn-green{background:var(--zap);color:#fff}
+.btn-red{background:var(--red);color:#fff}
+.btn-orange{background:var(--accent);color:#fff}
+.btn-sm{padding:6px 12px;font-size:12px}
+.btn svg{width:16px;height:16px;fill:currentColor}
+
+/* STAT */
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px 20px;display:flex;align-items:center;gap:14px}
+.stat-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.stat-label{font-size:12px;color:var(--text2)}
+.stat-value{font-size:22px;font-weight:700}
+
+/* TABLE */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.section-header h3{font-size:16px;font-weight:600}
+.list-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);transition:background .12s}
+.list-item:last-child{border-bottom:none}
+.list-item:hover{background:#fafafa}
+.badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-green{background:var(--green-light);color:var(--green)}
+.badge-yellow{background:var(--yellow-light);color:#E65100}
+.badge-red{background:var(--red-light);color:var(--red)}
+.badge-blue{background:var(--primary-light);color:var(--primary)}
+.badge-orange{background:#FFF3E0;color:var(--accent)}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-overlay.open{opacity:1;pointer-events:auto}
+.modal{background:#fff;border-radius:12px;width:100%;max-width:520px;max-height:92vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);transform:translateY(20px);transition:transform .2s}
+.modal-overlay.open .modal{transform:translateY(0)}
+.modal-header{padding:20px 24px 0;display:flex;align-items:center;justify-content:space-between}
+.modal-header h2{font-size:17px;font-weight:700}
+.modal-close{width:28px;height:28px;border:none;background:none;cursor:pointer;font-size:20px;color:var(--text2);display:flex;align-items:center;justify-content:center;border-radius:50%}
+.modal-close:hover{background:var(--bg)}
+.modal-body{padding:20px 24px 24px}
+.form-group{margin-bottom:16px}
+.form-label{font-size:13px;font-weight:600;margin-bottom:6px;display:block;color:var(--text)}
+.form-input{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:7px;font-size:14px;font-family:inherit;color:var(--text);outline:none;transition:border .15s}
+.form-input:focus{border-color:var(--primary)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+.toggle{position:relative;width:44px;height:24px;cursor:pointer}
+.toggle input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;inset:0;background:#ccc;border-radius:24px;transition:.3s}
+.toggle-slider:before{content:'';position:absolute;width:18px;height:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.3s}
+.toggle input:checked + .toggle-slider{background:var(--primary)}
+.toggle input:checked + .toggle-slider:before{transform:translateX(20px)}
+
+/* AGENDA */
+.cal-week{display:flex;gap:0;margin-bottom:20px;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.cal-day{flex:1;padding:12px 8px;text-align:center;cursor:pointer;border-right:1px solid var(--border);transition:background .15s}
+.cal-day:last-child{border-right:none}
+.cal-day:hover{background:var(--primary-light)}
+.cal-day.today{background:var(--primary);color:#fff}
+.cal-day.today .cal-day-num{color:#fff}
+.cal-day.today .cal-day-name{color:rgba(255,255,255,.8)}
+.cal-day.selected{background:var(--primary-light)}
+.cal-day-name{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:4px}
+.cal-day-num{font-size:18px;font-weight:700;color:var(--text)}
+.cal-day-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);margin:3px auto 0}
+.agendamento-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:flex-start;gap:14px}
+.agendamento-card.novo{border-left:4px solid var(--accent)}
+.ag-time{font-size:13px;font-weight:700;color:var(--primary);min-width:55px}
+.ag-info{flex:1}
+.ag-client{font-size:14px;font-weight:600}
+.ag-service{font-size:12px;color:var(--text2)}
+.ag-prof{font-size:11px;color:var(--text3)}
+.ag-obs{font-size:11px;color:var(--text3);font-style:italic;margin-top:2px}
+
+/* FINANCEIRO */
+.fin-tabs{display:flex;gap:0;margin-bottom:16px;border-radius:7px;overflow:hidden;border:1px solid var(--border);width:fit-content}
+.fin-tab{padding:9px 20px;font-size:13px;font-weight:600;cursor:pointer;background:#fff;color:var(--text2);border:none;transition:background .15s,color .15s}
+.fin-tab.active{background:var(--primary);color:#fff}
+.trans-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border)}
+.trans-item:last-child{border-bottom:none}
+.trans-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.trans-info{flex:1}
+.trans-desc{font-size:14px;font-weight:500}
+.trans-date{font-size:11px;color:var(--text3)}
+.trans-val{font-size:15px;font-weight:700}
+
+/* CHART */
+.chart-bars{display:flex;align-items:flex-end;gap:8px;height:100px;padding:0 4px}
+.chart-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.chart-bar{width:100%;background:var(--primary);border-radius:4px 4px 0 0;min-height:4px;transition:height .5s}
+
+/* CLIENTE */
+.client-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;display:flex;align-items:center;gap:14px;margin-bottom:10px;cursor:pointer;transition:border-color .15s}
+.client-card:hover{border-color:var(--primary)}
+.client-avatar{width:44px;height:44px;border-radius:50%;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;color:var(--primary);flex-shrink:0}
+
+/* SEARCH */
+.search-box{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--border);border-radius:8px;padding:9px 14px;margin-bottom:16px}
+.search-box svg{width:16px;height:16px;fill:var(--text3);flex-shrink:0}
+.search-box input{border:none;outline:none;font-size:14px;width:100%;color:var(--text);font-family:inherit}
+
+/* PROFISSIONAL */
+.prof-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:10px;min-width:200px;max-width:260px}
+
+/* SERVIÇO */
+.servico-item{display:flex;align-items:center;gap:14px;padding:14px 16px;border-bottom:1px solid var(--border)}
+.servico-item:last-child{border-bottom:none}
+.servico-img{width:40px;height:40px;border-radius:8px;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.servico-name{font-size:14px;font-weight:600}
+.servico-desc{font-size:12px;color:var(--text2)}
+.servico-price{font-size:12px;color:var(--accent);font-weight:600;margin-top:2px}
+
+/* CONFIG */
+.config-tabs{display:flex;gap:0;margin-bottom:20px;border-radius:8px;overflow:hidden;border:1px solid var(--border)}
+.config-tab{flex:1;padding:10px;text-align:center;cursor:pointer;font-size:13px;font-weight:600;color:var(--text2);background:#fff;border:none;transition:background .15s,color .15s}
+.config-tab.active{background:var(--primary);color:#fff}
+.color-grid{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.color-opt{width:36px;height:36px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:border-color .15s}
+.color-opt.selected{border-color:var(--text)}
+.color-opt:hover{border-color:var(--text3)}
+
+/* EMPTY */
+.empty{text-align:center;padding:40px 20px;color:var(--text3)}
+.empty svg{width:48px;height:48px;fill:var(--border);margin-bottom:12px}
+.empty p{font-size:15px;font-weight:600;color:var(--text2);margin-bottom:4px}
+.empty span{font-size:13px}
+
+/* HAMBURGER */
+#hamburger{display:none;position:fixed;top:14px;left:14px;z-index:60;width:36px;height:36px;border:1px solid var(--border);border-radius:8px;background:#fff;cursor:pointer;align-items:center;justify-content:center}
+#hamburger svg{width:20px;height:20px;stroke:var(--text2)}
+#overlay-mob{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:45}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--text);color:#fff;padding:12px 20px;border-radius:8px;font-size:14px;font-weight:500;z-index:300;opacity:0;transform:translateY(12px);transition:all .25s;pointer-events:none;max-width:320px}
+.toast.show{opacity:1;transform:translateY(0)}
+
+/* ALERTA NOVO AGENDAMENTO */
+.novo-alerta{background:linear-gradient(135deg,#FF6F00,#FF8F00);color:#fff;border-radius:10px;padding:16px 20px;margin-bottom:16px;display:flex;align-items:center;gap:14px;animation:pulsar 2s infinite}
+@keyframes pulsar{0%,100%{box-shadow:0 0 0 0 rgba(255,111,0,.3)}50%{box-shadow:0 0 0 8px rgba(255,111,0,0)}}
+
+/* TELA PUBLICA */
+#tela-publica{display:none;position:fixed;inset:0;z-index:500;overflow-y:auto;background:#f0f2f5}
+.pub-header{background:var(--primary);color:#fff;padding:20px 24px 16px;text-align:center;position:relative}
+.pub-logo{width:60px;height:60px;border-radius:50%;background:#fff;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:var(--primary)}
+.pub-nome{font-size:20px;font-weight:700}
+.pub-sub{font-size:13px;opacity:.8;margin-top:2px}
+.pub-body{max-width:500px;margin:0 auto;padding:20px 16px 40px}
+.pub-step{background:#fff;border-radius:12px;padding:20px;margin-bottom:16px;border:1px solid var(--border)}
+.pub-step-title{font-size:15px;font-weight:700;margin-bottom:14px;color:var(--primary)}
+.srv-option{border:2px solid var(--border);border-radius:10px;padding:14px;cursor:pointer;margin-bottom:10px;transition:border-color .15s,background .15s;display:flex;align-items:center;gap:12px}
+.srv-option:hover{border-color:var(--primary);background:var(--primary-light)}
+.srv-option.sel{border-color:var(--primary);background:var(--primary-light)}
+.srv-option-icon{font-size:24px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:var(--bg);border-radius:8px}
+.srv-option-name{font-size:14px;font-weight:600}
+.srv-option-info{font-size:12px;color:var(--text2)}
+.prof-option{border:2px solid var(--border);border-radius:10px;padding:12px;cursor:pointer;margin-bottom:8px;display:flex;align-items:center;gap:10px;transition:border-color .15s}
+.prof-option:hover,.prof-option.sel{border-color:var(--primary);background:var(--primary-light)}
+.pub-btn{width:100%;padding:14px;border-radius:10px;border:none;background:var(--primary);color:#fff;font-size:16px;font-weight:700;cursor:pointer;margin-top:8px}
+.pub-btn:hover{opacity:.9}
+.pub-btn-zap{background:var(--zap)}
+.pub-success{text-align:center;padding:30px 20px}
+.pub-success-icon{font-size:60px;margin-bottom:16px}
+.pub-back{position:absolute;top:16px;right:16px;background:rgba(255,255,255,.2);border:none;border-radius:8px;padding:8px 14px;color:#fff;cursor:pointer;font-size:13px;font-weight:600}
+
+/* INFO BOX */
+.info-box{background:var(--primary-light);border:1px solid #90CAF9;border-radius:8px;padding:12px 16px;font-size:13px;color:var(--primary-dark);margin-bottom:16px;display:flex;align-items:flex-start;gap:8px}
+.info-box-orange{background:#FFF3E0;border-color:#FFCC80;color:#E65100}
+
+@media(max-width:768px){
+  #sidebar{transform:translateX(-100%)}
+  #sidebar.mob-open{transform:translateX(0)}
+  #main{margin-left:0}
+  #hamburger{display:flex}
+  #overlay-mob{display:block}
+  .page{padding:16px}
+  .topbar{padding:0 16px 0 52px}
+  .grid2,.grid3,.grid4{grid-template-columns:1fr}
+  .form-row{grid-template-columns:1fr}
+}
+</style>
+<script>
+/* qrcode-generator (MIT, Kazuhiko Arase) - embutido offline para gerar QR codes sem CDN externo */
+var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],f={},c=function(t,r){o=function(t){for(var r=new Array(t),e=0;e<t;e+=1){r[e]=new Array(t);for(var n=0;n<t;n+=1)r[e][n]=null}return r}(i=4*e+17),l(0,0),l(i-7,0),l(0,i-7),s(),h(),d(t,r),e>=7&&v(t),null==a&&(a=p(e,n,u)),w(a,r)},l=function(t,r){for(var e=-1;e<=7;e+=1)if(!(t+e<=-1||i<=t+e))for(var n=-1;n<=7;n+=1)r+n<=-1||i<=r+n||(o[t+e][r+n]=0<=e&&e<=6&&(0==n||6==n)||0<=n&&n<=6&&(0==e||6==e)||2<=e&&e<=4&&2<=n&&n<=4)},h=function(){for(var t=8;t<i-8;t+=1)null==o[t][6]&&(o[t][6]=t%2==0);for(var r=8;r<i-8;r+=1)null==o[6][r]&&(o[6][r]=r%2==0)},s=function(){for(var t=B.getPatternPosition(e),r=0;r<t.length;r+=1)for(var n=0;n<t.length;n+=1){var i=t[r],a=t[n];if(null==o[i][a])for(var u=-2;u<=2;u+=1)for(var f=-2;f<=2;f+=1)o[i+u][a+f]=-2==u||2==u||-2==f||2==f||0==u&&0==f}},v=function(t){for(var r=B.getBCHTypeNumber(e),n=0;n<18;n+=1){var a=!t&&1==(r>>n&1);o[Math.floor(n/3)][n%3+i-8-3]=a}for(n=0;n<18;n+=1){a=!t&&1==(r>>n&1);o[n%3+i-8-3][Math.floor(n/3)]=a}},d=function(t,r){for(var e=n<<3|r,a=B.getBCHTypeInfo(e),u=0;u<15;u+=1){var f=!t&&1==(a>>u&1);u<6?o[u][8]=f:u<8?o[u+1][8]=f:o[i-15+u][8]=f}for(u=0;u<15;u+=1){f=!t&&1==(a>>u&1);u<8?o[8][i-u-1]=f:u<9?o[8][15-u-1+1]=f:o[8][15-u-1]=f}o[i-8][8]=!t},w=function(t,r){for(var e=-1,n=i-1,a=7,u=0,f=B.getMaskFunction(r),c=i-1;c>0;c-=2)for(6==c&&(c-=1);;){for(var g=0;g<2;g+=1)if(null==o[n][c-g]){var l=!1;u<t.length&&(l=1==(t[u]>>>a&1)),f(n,c-g)&&(l=!l),o[n][c-g]=l,-1==(a-=1)&&(u+=1,a=7)}if((n+=e)<0||i<=n){n-=e,e=-e;break}}},p=function(t,r,e){for(var n=A.getRSBlocks(t,r),o=b(),i=0;i<e.length;i+=1){var a=e[i];o.put(a.getMode(),4),o.put(a.getLength(),B.getLengthInBits(a.getMode(),t)),a.write(o)}var u=0;for(i=0;i<n.length;i+=1)u+=n[i].dataCount;if(o.getLengthInBits()>8*u)throw"code length overflow. ("+o.getLengthInBits()+">"+8*u+")";for(o.getLengthInBits()+4<=8*u&&o.put(0,4);o.getLengthInBits()%8!=0;)o.putBit(!1);for(;!(o.getLengthInBits()>=8*u||(o.put(236,8),o.getLengthInBits()>=8*u));)o.put(17,8);return function(t,r){for(var e=0,n=0,o=0,i=new Array(r.length),a=new Array(r.length),u=0;u<r.length;u+=1){var f=r[u].dataCount,c=r[u].totalCount-f;n=Math.max(n,f),o=Math.max(o,c),i[u]=new Array(f);for(var g=0;g<i[u].length;g+=1)i[u][g]=255&t.getBuffer()[g+e];e+=f;var l=B.getErrorCorrectPolynomial(c),h=k(i[u],l.getLength()-1).mod(l);for(a[u]=new Array(l.getLength()-1),g=0;g<a[u].length;g+=1){var s=g+h.getLength()-a[u].length;a[u][g]=s>=0?h.getAt(s):0}}var v=0;for(g=0;g<r.length;g+=1)v+=r[g].totalCount;var d=new Array(v),w=0;for(g=0;g<n;g+=1)for(u=0;u<r.length;u+=1)g<i[u].length&&(d[w]=i[u][g],w+=1);for(g=0;g<o;g+=1)for(u=0;u<r.length;u+=1)g<a[u].length&&(d[w]=a[u][g],w+=1);return d}(o,n)};f.addData=function(t,r){var e=null;switch(r=r||"Byte"){case"Numeric":e=M(t);break;case"Alphanumeric":e=x(t);break;case"Byte":e=m(t);break;case"Kanji":e=L(t);break;default:throw"mode:"+r}u.push(e),a=null},f.isDark=function(t,r){if(t<0||i<=t||r<0||i<=r)throw t+","+r;return o[t][r]},f.getModuleCount=function(){return i},f.make=function(){if(e<1){for(var t=1;t<40;t++){for(var r=A.getRSBlocks(t,n),o=b(),i=0;i<u.length;i++){var a=u[i];o.put(a.getMode(),4),o.put(a.getLength(),B.getLengthInBits(a.getMode(),t)),a.write(o)}var g=0;for(i=0;i<r.length;i++)g+=r[i].dataCount;if(o.getLengthInBits()<=8*g)break}e=t}c(!1,function(){for(var t=0,r=0,e=0;e<8;e+=1){c(!0,e);var n=B.getLostPoint(f);(0==e||t>n)&&(t=n,r=e)}return r}())},f.createTableTag=function(t,r){t=t||2;var e="";e+='<table style="',e+=" border-width: 0px; border-style: none;",e+=" border-collapse: collapse;",e+=" padding: 0px; margin: "+(r=void 0===r?4*t:r)+"px;",e+='">',e+="<tbody>";for(var n=0;n<f.getModuleCount();n+=1){e+="<tr>";for(var o=0;o<f.getModuleCount();o+=1)e+='<td style="',e+=" border-width: 0px; border-style: none;",e+=" border-collapse: collapse;",e+=" padding: 0px; margin: 0px;",e+=" width: "+t+"px;",e+=" height: "+t+"px;",e+=" background-color: ",e+=f.isDark(n,o)?"#000000":"#ffffff",e+=";",e+='"/>';e+="</tr>"}return e+="</tbody>",e+="</table>"},f.createSvgTag=function(t,r,e,n){var o={};"object"==typeof arguments[0]&&(t=(o=arguments[0]).cellSize,r=o.margin,e=o.alt,n=o.title),t=t||2,r=void 0===r?4*t:r,(e="string"==typeof e?{text:e}:e||{}).text=e.text||null,e.id=e.text?e.id||"qrcode-description":null,(n="string"==typeof n?{text:n}:n||{}).text=n.text||null,n.id=n.text?n.id||"qrcode-title":null;var i,a,u,c,g=f.getModuleCount()*t+2*r,l="";for(c="l"+t+",0 0,"+t+" -"+t+",0 0,-"+t+"z ",l+='<svg version="1.1" xmlns="http://www.w3.org/2000/svg"',l+=o.scalable?"":' width="'+g+'px" height="'+g+'px"',l+=' viewBox="0 0 '+g+" "+g+'" ',l+=' preserveAspectRatio="xMinYMin meet"',l+=n.text||e.text?' role="img" aria-labelledby="'+y([n.id,e.id].join(" ").trim())+'"':"",l+=">",l+=n.text?'<title id="'+y(n.id)+'">'+y(n.text)+"</title>":"",l+=e.text?'<description id="'+y(e.id)+'">'+y(e.text)+"</description>":"",l+='<rect width="100%" height="100%" fill="white" cx="0" cy="0"/>',l+='<path d="',a=0;a<f.getModuleCount();a+=1)for(u=a*t+r,i=0;i<f.getModuleCount();i+=1)f.isDark(a,i)&&(l+="M"+(i*t+r)+","+u+c);return l+='" stroke="transparent" fill="black"/>',l+="</svg>"},f.createDataURL=function(t,r){t=t||2,r=void 0===r?4*t:r;var e=f.getModuleCount()*t+2*r,n=r,o=e-r;return I(e,e,function(r,e){if(n<=r&&r<o&&n<=e&&e<o){var i=Math.floor((r-n)/t),a=Math.floor((e-n)/t);return f.isDark(a,i)?0:1}return 1})},f.createImgTag=function(t,r,e){t=t||2,r=void 0===r?4*t:r;var n=f.getModuleCount()*t+2*r,o="";return o+="<img",o+=' src="',o+=f.createDataURL(t,r),o+='"',o+=' width="',o+=n,o+='"',o+=' height="',o+=n,o+='"',e&&(o+=' alt="',o+=y(e),o+='"'),o+="/>"};var y=function(t){for(var r="",e=0;e<t.length;e+=1){var n=t.charAt(e);switch(n){case"<":r+="&lt;";break;case">":r+="&gt;";break;case"&":r+="&amp;";break;case'"':r+="&quot;";break;default:r+=n}}return r};return f.createASCII=function(t,r){if((t=t||1)<2)return function(t){t=void 0===t?2:t;var r,e,n,o,i,a=1*f.getModuleCount()+2*t,u=t,c=a-t,g={"██":"█","█ ":"▀"," █":"▄","  ":" "},l={"██":"▀","█ ":"▀"," █":" ","  ":" "},h="";for(r=0;r<a;r+=2){for(n=Math.floor((r-u)/1),o=Math.floor((r+1-u)/1),e=0;e<a;e+=1)i="█",u<=e&&e<c&&u<=r&&r<c&&f.isDark(n,Math.floor((e-u)/1))&&(i=" "),u<=e&&e<c&&u<=r+1&&r+1<c&&f.isDark(o,Math.floor((e-u)/1))?i+=" ":i+="█",h+=t<1&&r+1>=c?l[i]:g[i];h+="\n"}return a%2&&t>0?h.substring(0,h.length-a-1)+Array(a+1).join("▀"):h.substring(0,h.length-1)}(r);t-=1,r=void 0===r?2*t:r;var e,n,o,i,a=f.getModuleCount()*t+2*r,u=r,c=a-r,g=Array(t+1).join("██"),l=Array(t+1).join("  "),h="",s="";for(e=0;e<a;e+=1){for(o=Math.floor((e-u)/t),s="",n=0;n<a;n+=1)i=1,u<=n&&n<c&&u<=e&&e<c&&f.isDark(o,Math.floor((n-u)/t))&&(i=0),s+=i?g:l;for(o=0;o<t;o+=1)h+=s+"\n"}return h.substring(0,h.length-1)},f.renderTo2dContext=function(t,r){r=r||2;for(var e=f.getModuleCount(),n=0;n<e;n++)for(var o=0;o<e;o++)t.fillStyle=f.isDark(n,o)?"black":"white",t.fillRect(o*r,n*r,r,r)},f};t.stringToBytes=(t.stringToBytesFuncs={default:function(t){for(var r=[],e=0;e<t.length;e+=1){var n=t.charCodeAt(e);r.push(255&n)}return r}}).default,t.createStringToBytes=function(t,r){var e=function(){for(var e=S(t),n=function(){var t=e.read();if(-1==t)throw"eof";return t},o=0,i={};;){var a=e.read();if(-1==a)break;var u=n(),f=n()<<8|n();i[String.fromCharCode(a<<8|u)]=f,o+=1}if(o!=r)throw o+" != "+r;return i}(),n="?".charCodeAt(0);return function(t){for(var r=[],o=0;o<t.length;o+=1){var i=t.charCodeAt(o);if(i<128)r.push(i);else{var a=e[t.charAt(o)];"number"==typeof a?(255&a)==a?r.push(a):(r.push(a>>>8),r.push(255&a)):r.push(n)}}return r}};var r,e,n,o,i,a=1,u=2,f=4,c=8,g={L:1,M:0,Q:3,H:2},l=0,h=1,s=2,v=3,d=4,w=5,p=6,y=7,B=(r=[[],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],[6,28,50],[6,30,54],[6,32,58],[6,34,62],[6,26,46,66],[6,26,48,70],[6,26,50,74],[6,30,54,78],[6,30,56,82],[6,30,58,86],[6,34,62,90],[6,28,50,72,94],[6,26,50,74,98],[6,30,54,78,102],[6,28,54,80,106],[6,32,58,84,110],[6,30,58,86,114],[6,34,62,90,118],[6,26,50,74,98,122],[6,30,54,78,102,126],[6,26,52,78,104,130],[6,30,56,82,108,134],[6,34,60,86,112,138],[6,30,58,86,114,142],[6,34,62,90,118,146],[6,30,54,78,102,126,150],[6,24,50,76,102,128,154],[6,28,54,80,106,132,158],[6,32,58,84,110,136,162],[6,26,54,82,110,138,166],[6,30,58,86,114,142,170]],e=1335,n=7973,i=function(t){for(var r=0;0!=t;)r+=1,t>>>=1;return r},(o={}).getBCHTypeInfo=function(t){for(var r=t<<10;i(r)-i(e)>=0;)r^=e<<i(r)-i(e);return 21522^(t<<10|r)},o.getBCHTypeNumber=function(t){for(var r=t<<12;i(r)-i(n)>=0;)r^=n<<i(r)-i(n);return t<<12|r},o.getPatternPosition=function(t){return r[t-1]},o.getMaskFunction=function(t){switch(t){case l:return function(t,r){return(t+r)%2==0};case h:return function(t,r){return t%2==0};case s:return function(t,r){return r%3==0};case v:return function(t,r){return(t+r)%3==0};case d:return function(t,r){return(Math.floor(t/2)+Math.floor(r/3))%2==0};case w:return function(t,r){return t*r%2+t*r%3==0};case p:return function(t,r){return(t*r%2+t*r%3)%2==0};case y:return function(t,r){return(t*r%3+(t+r)%2)%2==0};default:throw"bad maskPattern:"+t}},o.getErrorCorrectPolynomial=function(t){for(var r=k([1],0),e=0;e<t;e+=1)r=r.multiply(k([1,C.gexp(e)],0));return r},o.getLengthInBits=function(t,r){if(1<=r&&r<10)switch(t){case a:return 10;case u:return 9;case f:case c:return 8;default:throw"mode:"+t}else if(r<27)switch(t){case a:return 12;case u:return 11;case f:return 16;case c:return 10;default:throw"mode:"+t}else{if(!(r<41))throw"type:"+r;switch(t){case a:return 14;case u:return 13;case f:return 16;case c:return 12;default:throw"mode:"+t}}},o.getLostPoint=function(t){for(var r=t.getModuleCount(),e=0,n=0;n<r;n+=1)for(var o=0;o<r;o+=1){for(var i=0,a=t.isDark(n,o),u=-1;u<=1;u+=1)if(!(n+u<0||r<=n+u))for(var f=-1;f<=1;f+=1)o+f<0||r<=o+f||0==u&&0==f||a==t.isDark(n+u,o+f)&&(i+=1);i>5&&(e+=3+i-5)}for(n=0;n<r-1;n+=1)for(o=0;o<r-1;o+=1){var c=0;t.isDark(n,o)&&(c+=1),t.isDark(n+1,o)&&(c+=1),t.isDark(n,o+1)&&(c+=1),t.isDark(n+1,o+1)&&(c+=1),0!=c&&4!=c||(e+=3)}for(n=0;n<r;n+=1)for(o=0;o<r-6;o+=1)t.isDark(n,o)&&!t.isDark(n,o+1)&&t.isDark(n,o+2)&&t.isDark(n,o+3)&&t.isDark(n,o+4)&&!t.isDark(n,o+5)&&t.isDark(n,o+6)&&(e+=40);for(o=0;o<r;o+=1)for(n=0;n<r-6;n+=1)t.isDark(n,o)&&!t.isDark(n+1,o)&&t.isDark(n+2,o)&&t.isDark(n+3,o)&&t.isDark(n+4,o)&&!t.isDark(n+5,o)&&t.isDark(n+6,o)&&(e+=40);var g=0;for(o=0;o<r;o+=1)for(n=0;n<r;n+=1)t.isDark(n,o)&&(g+=1);return e+=Math.abs(100*g/r/r-50)/5*10},o),C=function(){for(var t=new Array(256),r=new Array(256),e=0;e<8;e+=1)t[e]=1<<e;for(e=8;e<256;e+=1)t[e]=t[e-4]^t[e-5]^t[e-6]^t[e-8];for(e=0;e<255;e+=1)r[t[e]]=e;var n={glog:function(t){if(t<1)throw"glog("+t+")";return r[t]},gexp:function(r){for(;r<0;)r+=255;for(;r>=256;)r-=255;return t[r]}};return n}();function k(t,r){if(void 0===t.length)throw t.length+"/"+r;var e=function(){for(var e=0;e<t.length&&0==t[e];)e+=1;for(var n=new Array(t.length-e+r),o=0;o<t.length-e;o+=1)n[o]=t[o+e];return n}(),n={getAt:function(t){return e[t]},getLength:function(){return e.length},multiply:function(t){for(var r=new Array(n.getLength()+t.getLength()-1),e=0;e<n.getLength();e+=1)for(var o=0;o<t.getLength();o+=1)r[e+o]^=C.gexp(C.glog(n.getAt(e))+C.glog(t.getAt(o)));return k(r,0)},mod:function(t){if(n.getLength()-t.getLength()<0)return n;for(var r=C.glog(n.getAt(0))-C.glog(t.getAt(0)),e=new Array(n.getLength()),o=0;o<n.getLength();o+=1)e[o]=n.getAt(o);for(o=0;o<t.getLength();o+=1)e[o]^=C.gexp(C.glog(t.getAt(o))+r);return k(e,0).mod(t)}};return n}var A=function(){var t=[[1,26,19],[1,26,16],[1,26,13],[1,26,9],[1,44,34],[1,44,28],[1,44,22],[1,44,16],[1,70,55],[1,70,44],[2,35,17],[2,35,13],[1,100,80],[2,50,32],[2,50,24],[4,25,9],[1,134,108],[2,67,43],[2,33,15,2,34,16],[2,33,11,2,34,12],[2,86,68],[4,43,27],[4,43,19],[4,43,15],[2,98,78],[4,49,31],[2,32,14,4,33,15],[4,39,13,1,40,14],[2,121,97],[2,60,38,2,61,39],[4,40,18,2,41,19],[4,40,14,2,41,15],[2,146,116],[3,58,36,2,59,37],[4,36,16,4,37,17],[4,36,12,4,37,13],[2,86,68,2,87,69],[4,69,43,1,70,44],[6,43,19,2,44,20],[6,43,15,2,44,16],[4,101,81],[1,80,50,4,81,51],[4,50,22,4,51,23],[3,36,12,8,37,13],[2,116,92,2,117,93],[6,58,36,2,59,37],[4,46,20,6,47,21],[7,42,14,4,43,15],[4,133,107],[8,59,37,1,60,38],[8,44,20,4,45,21],[12,33,11,4,34,12],[3,145,115,1,146,116],[4,64,40,5,65,41],[11,36,16,5,37,17],[11,36,12,5,37,13],[5,109,87,1,110,88],[5,65,41,5,66,42],[5,54,24,7,55,25],[11,36,12,7,37,13],[5,122,98,1,123,99],[7,73,45,3,74,46],[15,43,19,2,44,20],[3,45,15,13,46,16],[1,135,107,5,136,108],[10,74,46,1,75,47],[1,50,22,15,51,23],[2,42,14,17,43,15],[5,150,120,1,151,121],[9,69,43,4,70,44],[17,50,22,1,51,23],[2,42,14,19,43,15],[3,141,113,4,142,114],[3,70,44,11,71,45],[17,47,21,4,48,22],[9,39,13,16,40,14],[3,135,107,5,136,108],[3,67,41,13,68,42],[15,54,24,5,55,25],[15,43,15,10,44,16],[4,144,116,4,145,117],[17,68,42],[17,50,22,6,51,23],[19,46,16,6,47,17],[2,139,111,7,140,112],[17,74,46],[7,54,24,16,55,25],[34,37,13],[4,151,121,5,152,122],[4,75,47,14,76,48],[11,54,24,14,55,25],[16,45,15,14,46,16],[6,147,117,4,148,118],[6,73,45,14,74,46],[11,54,24,16,55,25],[30,46,16,2,47,17],[8,132,106,4,133,107],[8,75,47,13,76,48],[7,54,24,22,55,25],[22,45,15,13,46,16],[10,142,114,2,143,115],[19,74,46,4,75,47],[28,50,22,6,51,23],[33,46,16,4,47,17],[8,152,122,4,153,123],[22,73,45,3,74,46],[8,53,23,26,54,24],[12,45,15,28,46,16],[3,147,117,10,148,118],[3,73,45,23,74,46],[4,54,24,31,55,25],[11,45,15,31,46,16],[7,146,116,7,147,117],[21,73,45,7,74,46],[1,53,23,37,54,24],[19,45,15,26,46,16],[5,145,115,10,146,116],[19,75,47,10,76,48],[15,54,24,25,55,25],[23,45,15,25,46,16],[13,145,115,3,146,116],[2,74,46,29,75,47],[42,54,24,1,55,25],[23,45,15,28,46,16],[17,145,115],[10,74,46,23,75,47],[10,54,24,35,55,25],[19,45,15,35,46,16],[17,145,115,1,146,116],[14,74,46,21,75,47],[29,54,24,19,55,25],[11,45,15,46,46,16],[13,145,115,6,146,116],[14,74,46,23,75,47],[44,54,24,7,55,25],[59,46,16,1,47,17],[12,151,121,7,152,122],[12,75,47,26,76,48],[39,54,24,14,55,25],[22,45,15,41,46,16],[6,151,121,14,152,122],[6,75,47,34,76,48],[46,54,24,10,55,25],[2,45,15,64,46,16],[17,152,122,4,153,123],[29,74,46,14,75,47],[49,54,24,10,55,25],[24,45,15,46,46,16],[4,152,122,18,153,123],[13,74,46,32,75,47],[48,54,24,14,55,25],[42,45,15,32,46,16],[20,147,117,4,148,118],[40,75,47,7,76,48],[43,54,24,22,55,25],[10,45,15,67,46,16],[19,148,118,6,149,119],[18,75,47,31,76,48],[34,54,24,34,55,25],[20,45,15,61,46,16]],r=function(t,r){var e={};return e.totalCount=t,e.dataCount=r,e},e={};return e.getRSBlocks=function(e,n){var o=function(r,e){switch(e){case g.L:return t[4*(r-1)+0];case g.M:return t[4*(r-1)+1];case g.Q:return t[4*(r-1)+2];case g.H:return t[4*(r-1)+3];default:return}}(e,n);if(void 0===o)throw"bad rs block @ typeNumber:"+e+"/errorCorrectionLevel:"+n;for(var i=o.length/3,a=[],u=0;u<i;u+=1)for(var f=o[3*u+0],c=o[3*u+1],l=o[3*u+2],h=0;h<f;h+=1)a.push(r(c,l));return a},e}(),b=function(){var t=[],r=0,e={getBuffer:function(){return t},getAt:function(r){var e=Math.floor(r/8);return 1==(t[e]>>>7-r%8&1)},put:function(t,r){for(var n=0;n<r;n+=1)e.putBit(1==(t>>>r-n-1&1))},getLengthInBits:function(){return r},putBit:function(e){var n=Math.floor(r/8);t.length<=n&&t.push(0),e&&(t[n]|=128>>>r%8),r+=1}};return e},M=function(t){var r=a,e=t,n={getMode:function(){return r},getLength:function(t){return e.length},write:function(t){for(var r=e,n=0;n+2<r.length;)t.put(o(r.substring(n,n+3)),10),n+=3;n<r.length&&(r.length-n==1?t.put(o(r.substring(n,n+1)),4):r.length-n==2&&t.put(o(r.substring(n,n+2)),7))}},o=function(t){for(var r=0,e=0;e<t.length;e+=1)r=10*r+i(t.charAt(e));return r},i=function(t){if("0"<=t&&t<="9")return t.charCodeAt(0)-"0".charCodeAt(0);throw"illegal char :"+t};return n},x=function(t){var r=u,e=t,n={getMode:function(){return r},getLength:function(t){return e.length},write:function(t){for(var r=e,n=0;n+1<r.length;)t.put(45*o(r.charAt(n))+o(r.charAt(n+1)),11),n+=2;n<r.length&&t.put(o(r.charAt(n)),6)}},o=function(t){if("0"<=t&&t<="9")return t.charCodeAt(0)-"0".charCodeAt(0);if("A"<=t&&t<="Z")return t.charCodeAt(0)-"A".charCodeAt(0)+10;switch(t){case" ":return 36;case"$":return 37;case"%":return 38;case"*":return 39;case"+":return 40;case"-":return 41;case".":return 42;case"/":return 43;case":":return 44;default:throw"illegal char :"+t}};return n},m=function(r){var e=f,n=t.stringToBytes(r),o={getMode:function(){return e},getLength:function(t){return n.length},write:function(t){for(var r=0;r<n.length;r+=1)t.put(n[r],8)}};return o},L=function(r){var e=c,n=t.stringToBytesFuncs.SJIS;if(!n)throw"sjis not supported.";!function(){var t=n("友");if(2!=t.length||38726!=(t[0]<<8|t[1]))throw"sjis not supported."}();var o=n(r),i={getMode:function(){return e},getLength:function(t){return~~(o.length/2)},write:function(t){for(var r=o,e=0;e+1<r.length;){var n=(255&r[e])<<8|255&r[e+1];if(33088<=n&&n<=40956)n-=33088;else{if(!(57408<=n&&n<=60351))throw"illegal char at "+(e+1)+"/"+n;n-=49472}n=192*(n>>>8&255)+(255&n),t.put(n,13),e+=2}if(e<r.length)throw"illegal char at "+(e+1)}};return i},D=function(){var t=[],r={writeByte:function(r){t.push(255&r)},writeShort:function(t){r.writeByte(t),r.writeByte(t>>>8)},writeBytes:function(t,e,n){e=e||0,n=n||t.length;for(var o=0;o<n;o+=1)r.writeByte(t[o+e])},writeString:function(t){for(var e=0;e<t.length;e+=1)r.writeByte(t.charCodeAt(e))},toByteArray:function(){return t},toString:function(){var r="";r+="[";for(var e=0;e<t.length;e+=1)e>0&&(r+=","),r+=t[e];return r+="]"}};return r},S=function(t){var r=t,e=0,n=0,o=0,i={read:function(){for(;o<8;){if(e>=r.length){if(0==o)return-1;throw"unexpected end of file./"+o}var t=r.charAt(e);if(e+=1,"="==t)return o=0,-1;t.match(/^\s$/)||(n=n<<6|a(t.charCodeAt(0)),o+=6)}var i=n>>>o-8&255;return o-=8,i}},a=function(t){if(65<=t&&t<=90)return t-65;if(97<=t&&t<=122)return t-97+26;if(48<=t&&t<=57)return t-48+52;if(43==t)return 62;if(47==t)return 63;throw"c:"+t};return i},I=function(t,r,e){for(var n=function(t,r){var e=t,n=r,o=new Array(t*r),i={setPixel:function(t,r,n){o[r*e+t]=n},write:function(t){t.writeString("GIF87a"),t.writeShort(e),t.writeShort(n),t.writeByte(128),t.writeByte(0),t.writeByte(0),t.writeByte(0),t.writeByte(0),t.writeByte(0),t.writeByte(255),t.writeByte(255),t.writeByte(255),t.writeString(","),t.writeShort(0),t.writeShort(0),t.writeShort(e),t.writeShort(n),t.writeByte(0);var r=a(2);t.writeByte(2);for(var o=0;r.length-o>255;)t.writeByte(255),t.writeBytes(r,o,255),o+=255;t.writeByte(r.length-o),t.writeBytes(r,o,r.length-o),t.writeByte(0),t.writeString(";")}},a=function(t){for(var r=1<<t,e=1+(1<<t),n=t+1,i=u(),a=0;a<r;a+=1)i.add(String.fromCharCode(a));i.add(String.fromCharCode(r)),i.add(String.fromCharCode(e));var f,c,g,l=D(),h=(f=l,c=0,g=0,{write:function(t,r){if(t>>>r!=0)throw"length over";for(;c+r>=8;)f.writeByte(255&(t<<c|g)),r-=8-c,t>>>=8-c,g=0,c=0;g|=t<<c,c+=r},flush:function(){c>0&&f.writeByte(g)}});h.write(r,n);var s=0,v=String.fromCharCode(o[s]);for(s+=1;s<o.length;){var d=String.fromCharCode(o[s]);s+=1,i.contains(v+d)?v+=d:(h.write(i.indexOf(v),n),i.size()<4095&&(i.size()==1<<n&&(n+=1),i.add(v+d)),v=d)}return h.write(i.indexOf(v),n),h.write(e,n),h.flush(),l.toByteArray()},u=function(){var t={},r=0,e={add:function(n){if(e.contains(n))throw"dup key:"+n;t[n]=r,r+=1},size:function(){return r},indexOf:function(r){return t[r]},contains:function(r){return void 0!==t[r]}};return e};return i}(t,r),o=0;o<r;o+=1)for(var i=0;i<t;i+=1)n.setPixel(i,o,e(i,o));var a=D();n.write(a);for(var u=function(){var t=0,r=0,e=0,n="",o={},i=function(t){n+=String.fromCharCode(a(63&t))},a=function(t){if(t<0);else{if(t<26)return 65+t;if(t<52)return t-26+97;if(t<62)return t-52+48;if(62==t)return 43;if(63==t)return 47}throw"n:"+t};return o.writeByte=function(n){for(t=t<<8|255&n,r+=8,e+=1;r>=6;)i(t>>>r-6),r-=6},o.flush=function(){if(r>0&&(i(t<<6-r),t=0,r=0),e%3!=0)for(var o=3-e%3,a=0;a<o;a+=1)n+="="},o.toString=function(){return n},o}(),f=a.toByteArray(),c=0;c<f.length;c+=1)u.writeByte(f[c]);return u.flush(),"data:image/gif;base64,"+u};return t}();qrcode.stringToBytesFuncs["UTF-8"]=function(t){return function(t){for(var r=[],e=0;e<t.length;e++){var n=t.charCodeAt(e);n<128?r.push(n):n<2048?r.push(192|n>>6,128|63&n):n<55296||n>=57344?r.push(224|n>>12,128|n>>6&63,128|63&n):(e++,n=65536+((1023&n)<<10|1023&t.charCodeAt(e)),r.push(240|n>>18,128|n>>12&63,128|n>>6&63,128|63&n))}return r}(t)},function(t){"function"==typeof define&&define.amd?define([],t):"object"==typeof exports&&(module.exports=t())}(function(){return qrcode});
+</script>
+</head>
+<body>
+
+<!-- TELA PUBLICA DO CLIENTE -->
+<div id="tela-publica">
+  <div class="pub-header">
+    <button class="pub-back" onclick="fecharPublica()">✕ Fechar</button>
+    <div class="pub-logo" id="pub-logo-txt">J</div>
+    <div class="pub-nome" id="pub-nome-txt">Padrão Elétrica</div>
+    <div class="pub-sub" id="pub-sub-txt">Agende seu serviço com facilidade</div>
+  </div>
+  <div class="pub-body" id="pub-body">
+    <!-- Preenchido dinamicamente -->
+  </div>
+</div>
+
+<!-- HAMBURGER -->
+<button id="hamburger" onclick="toggleSidebar()">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+</button>
+<div id="overlay-mob" onclick="toggleSidebar()"></div>
+
+<!-- SIDEBAR -->
+<aside id="sidebar">
+  <div class="sb-brand" onclick="openPage('dashboard')">
+    <div class="sb-avatar" id="sb-avatar">J</div>
+    <div class="sb-brand-info">
+      <div class="sb-brand-name" id="sb-name">Padrão Elétrica</div>
+      <div class="sb-brand-url" id="sb-url">padraoeletrica.app</div>
+    </div>
+  </div>
+  <nav>
+    <div class="nav-item active" data-page="dashboard" onclick="openPage('dashboard')">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+      Dashboard
+    </div>
+    <div class="nav-item" data-page="solicita" onclick="openPage('solicita')">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 14H4v-4h11v4zm0-5H4V9h11v4zm5 5h-4V9h4v9z"/></svg>
+      Solicitações
+      <span class="nav-badge" id="badge-solicita" style="display:none">0</span>
+    </div>
+    <div class="nav-item" data-page="agenda" onclick="openPage('agenda')">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
+      Agenda
+    </div>
+    <div class="nav-item" data-page="servicos" onclick="openPage('servicos')">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/></svg>
+      Serviços
+    </div>
+    <div class="nav-item" data-page="profissionais" onclick="openPage('profissionais')">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+      Profissionais
+    </div>
+    <div class="nav-item" data-page="financeiro" onclick="openPage('financeiro')">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
+      Financeiro
+    </div>
+    <div class="nav-item" data-page="clientes" onclick="openPage('clientes')">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+      Clientes
+    </div>
+    <div class="nav-item" data-page="configuracoes" onclick="openPage('configuracoes')">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg>
+      Configurações
+    </div>
+    <div class="nav-item" data-page="meuapp" onclick="openPage('meuapp')">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 11h8V3H3v8zm2-6h4v4H5V5zM3 21h8v-8H3v8zm2-6h4v4H5v-4zM13 3v8h8V3h-8zm6 6h-4V5h4v4zM13 13h2v2h-2zM15 15h2v2h-2zM13 17h2v2h-2zM17 13h2v2h-2zM19 15h-2v2h2v2h-4v-6h4z"/></svg>
+      Meu App
+    </div>
+  </nav>
+  <div style="padding:12px 16px;border-top:1px solid var(--border)">
+    <button class="btn btn-green" style="width:100%;justify-content:center;font-size:13px" onclick="abrirAppCliente()">
+      🔗 Abrir App do Cliente
+    </button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main id="main">
+
+  <!-- ══ DASHBOARD ══ -->
+  <div class="page active" id="page-dashboard">
+    <div class="topbar">
+      <div><div class="topbar-title">Dashboard</div></div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="topbar-link-box">
+          <svg viewBox="0 0 24 24" fill="var(--primary)" style="width:14px;height:14px;flex-shrink:0"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          <span id="topbar-link-text">padraoeletrica.app/agendar/padraoeletrica</span>
+        </div>
+        <div class="topbar-actions">
+          <div class="icon-btn" title="Copiar link" onclick="copiarLink()">
+            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+          </div>
+          <div class="icon-btn" title="Abrir App do Cliente" onclick="abrirAppCliente()">
+            <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+          </div>
+          <div class="icon-btn" title="Mostrar QR Code" onclick="openPage('meuapp')">
+            <svg viewBox="0 0 24 24"><path d="M3 11h8V3H3v8zm2-6h4v4H5V5zM3 21h8v-8H3v8zm2-6h4v4H5v-4zM13 3v8h8V3h-8zm6 6h-4V5h4v4zM13 13h2v2h-2zM15 15h2v2h-2zM13 17h2v2h-2zM17 13h2v2h-2zM19 15h-2v2h2v2h-4v-6h4z"/></svg>
+          </div>
+          <div class="icon-btn" title="Compartilhar no WhatsApp" onclick="compartilharZap()">
+            <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="padding:24px 28px">
+      <div id="dash-alertas"></div>
+      <div class="grid4" style="margin-bottom:16px">
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#FFF3E0">🔔</div>
+          <div><div class="stat-label">Solicitações Novas</div><div class="stat-value" id="dash-novas" style="color:var(--accent)">0</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#E3F2FD">📅</div>
+          <div><div class="stat-label">Agendamentos Hoje</div><div class="stat-value" id="dash-hoje">0</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#FFF3E0">⏳</div>
+          <div><div class="stat-label">Pendentes</div><div class="stat-value" id="dash-pendentes">0</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#E8F5E9">💰</div>
+          <div><div class="stat-label">Faturamento Hoje</div><div class="stat-value" id="dash-fat" style="font-size:16px">R$ 0,00</div></div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:16px">
+        <div class="section-header">
+          <h3>Agendamentos Recentes</h3>
+          <span style="font-size:12px;color:var(--primary);cursor:pointer" onclick="openPage('agenda')">Ver todos</span>
+        </div>
+        <div id="dash-agendamentos-list"><div class="empty"><p>Nenhum agendamento</p></div></div>
+      </div>
+      <div class="card">
+        <h3 style="margin-bottom:16px">Receita dos Últimos 7 Dias</h3>
+        <div class="chart-bars" id="chart-bars"></div>
+        <div style="display:flex;justify-content:space-between;margin-top:8px" id="chart-labels"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SOLICITAÇÕES (agendamentos do cliente via formulário) ══ -->
+  <div class="page" id="page-solicita">
+    <div class="topbar">
+      <div><div class="topbar-title">Solicitações</div><div class="topbar-sub">Pedidos de agendamento feitos pelo formulário do cliente</div></div>
+    </div>
+    <div style="padding:24px 28px">
+      <div class="info-box info-box-orange">
+        💡 Quando o cliente preenche o formulário, ele cai aqui. Você confirma ou cancela — e o WhatsApp abre automaticamente para avisar o cliente.
+      </div>
+      <div id="solicita-list"><div class="empty"><p>Nenhuma solicitação ainda</p><span>Compartilhe o link com seus clientes para começar a receber agendamentos</span></div></div>
+    </div>
+  </div>
+
+  <!-- ══ AGENDA ══ -->
+  <div class="page" id="page-agenda">
+    <div class="topbar">
+      <div><div class="topbar-title">Agenda</div></div>
+      <button class="btn btn-primary" onclick="openModal('modal-agendamento')">+ Agendamento</button>
+    </div>
+    <div style="padding:24px 28px">
+      <div class="grid2" style="margin-bottom:16px">
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#E3F2FD">📅</div>
+          <div><div class="stat-label">Agendamentos Hoje</div><div class="stat-value" id="ag-hoje">0</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#FFF3E0">⏳</div>
+          <div><div class="stat-label">Pendentes na Semana</div><div class="stat-value" id="ag-pendentes">0</div></div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <button class="btn btn-outline btn-sm" onclick="navegarSemana(-1)">‹</button>
+        <div class="cal-week" id="cal-week" style="flex:1;margin:0 10px"></div>
+        <button class="btn btn-outline btn-sm" onclick="navegarSemana(1)">›</button>
+      </div>
+      <div id="agenda-list"><div class="empty"><p>Nenhum agendamento neste dia</p></div></div>
+    </div>
+  </div>
+
+  <!-- ══ SERVIÇOS ══ -->
+  <div class="page" id="page-servicos">
+    <div class="topbar">
+      <div><div class="topbar-title">Serviços</div><div class="topbar-sub">Gerencie seus serviços, preços e duração.</div></div>
+    </div>
+    <div style="padding:24px 28px">
+      <div style="display:flex;gap:10px;margin-bottom:16px">
+        <button class="btn btn-primary" onclick="openModal('modal-servico')">+ Serviço</button>
+      </div>
+      <div class="search-box">
+        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+        <input type="text" placeholder="Buscar serviços..." oninput="filtrarServicos(this.value)">
+      </div>
+      <div class="card" style="padding:0"><div id="servicos-list"><div class="empty" style="padding:40px"><p>Nenhum serviço cadastrado</p><span>Clique em "+ Serviço" para começar.</span></div></div></div>
+    </div>
+  </div>
+
+  <!-- ══ PROFISSIONAIS ══ -->
+  <div class="page" id="page-profissionais">
+    <div class="topbar">
+      <div><div class="topbar-title">Profissionais</div><div class="topbar-sub">Gerencie sua equipe.</div></div>
+      <button class="btn btn-primary" onclick="openModal('modal-profissional')">+ Profissional</button>
+    </div>
+    <div style="padding:24px 28px">
+      <div id="prof-list" style="display:flex;flex-wrap:wrap;gap:14px"><div class="empty" style="width:100%;padding:40px"><p>Nenhum profissional cadastrado</p></div></div>
+    </div>
+  </div>
+
+  <!-- ══ FINANCEIRO ══ -->
+  <div class="page" id="page-financeiro">
+    <div class="topbar">
+      <div><div class="topbar-title">Financeiro</div><div class="topbar-sub">Controle de caixa, receitas e despesas.</div></div>
+    </div>
+    <div style="padding:24px 28px">
+      <div class="grid3" style="margin-bottom:16px">
+        <div class="card" style="border-left:3px solid var(--green)">
+          <div style="font-size:12px;color:var(--text2)">Receitas (Mês)</div>
+          <div style="font-size:24px;font-weight:700;color:var(--green)" id="fin-receitas">R$ 0,00</div>
+        </div>
+        <div class="card" style="border-left:3px solid var(--red)">
+          <div style="font-size:12px;color:var(--text2)">Despesas (Mês)</div>
+          <div style="font-size:24px;font-weight:700;color:var(--red)" id="fin-despesas">R$ 0,00</div>
+        </div>
+        <div class="card" style="border-left:3px solid var(--green)">
+          <div style="font-size:12px;color:var(--text2)">Saldo Atual</div>
+          <div style="font-size:24px;font-weight:700;color:var(--green)" id="fin-saldo">R$ 0,00</div>
+        </div>
+      </div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;margin-bottom:16px" onclick="openModal('modal-transacao')">+ Adicionar Transação</button>
+      <div class="card" style="padding:0">
+        <div style="padding:16px 20px;font-size:15px;font-weight:600;border-bottom:1px solid var(--border)">Histórico de Transações</div>
+        <div id="trans-list"><div class="empty"><p>Nenhuma transação registrada.</p></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ CLIENTES ══ -->
+  <div class="page" id="page-clientes">
+    <div class="topbar">
+      <div><div class="topbar-title">Clientes</div><div class="topbar-sub">Gerencie os clientes.</div></div>
+      <button class="btn btn-primary" onclick="openModal('modal-cliente')">+ Novo Cliente</button>
+    </div>
+    <div style="padding:24px 28px">
+      <div class="search-box">
+        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+        <input type="text" placeholder="Buscar por nome..." oninput="filtrarClientes(this.value)">
+      </div>
+      <div id="clientes-list"></div>
+    </div>
+  </div>
+
+  <!-- ══ CONFIGURAÇÕES ══ -->
+  <div class="page" id="page-configuracoes">
+    <div class="topbar">
+      <div><div class="topbar-title">Configurações</div><div class="topbar-sub">Personalize sua empresa.</div></div>
+    </div>
+    <div style="padding:24px 28px">
+      <div class="config-tabs">
+        <button class="config-tab active" onclick="configTab(this,'cfg-loja')">Empresa</button>
+        <button class="config-tab" onclick="configTab(this,'cfg-zap-msg')">Mensagens WhatsApp</button>
+        <button class="config-tab" onclick="configTab(this,'cfg-visual')">Visual</button>
+        <button class="config-tab" onclick="configTab(this,'cfg-horarios')">Horários</button>
+        <button class="config-tab" onclick="configTab(this,'cfg-pagamentos')">Pagamentos</button>
+      </div>
+
+      <div id="cfg-loja">
+        <div class="card" style="margin-bottom:16px">
+          <div style="font-weight:700;margin-bottom:16px;font-size:15px">🏪 Dados da Empresa</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Nome da empresa</label>
+              <input class="form-input" id="cfg-nome" value="Padrão Elétrica" oninput="atualizarConfig()">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Link da loja</label>
+              <input class="form-input" id="cfg-link" value="padraoeletrica">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Seu WhatsApp (com DDD, sem traços)</label>
+            <input class="form-input" id="cfg-zap" placeholder="84900000000" type="tel">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Descrição / Slogan</label>
+            <input class="form-input" id="cfg-desc" placeholder="Ex: Serviços elétricos, hidráulica e câmeras em Apodi-RN">
+          </div>
+          <button class="btn btn-primary" onclick="salvarConfig()">Salvar configurações</button>
+        </div>
+      </div>
+
+      <div id="cfg-zap-msg" style="display:none">
+        <div class="card" style="margin-bottom:16px">
+          <div style="font-weight:700;margin-bottom:8px;font-size:15px">📱 Mensagem de Confirmação para o Cliente</div>
+          <p style="font-size:13px;color:var(--text2);margin-bottom:12px">Enviada quando você confirmar um agendamento. Use <code style="background:var(--bg);padding:2px 5px;border-radius:4px">{nome}</code>, <code style="background:var(--bg);padding:2px 5px;border-radius:4px">{servico}</code>, <code style="background:var(--bg);padding:2px 5px;border-radius:4px">{data}</code>, <code style="background:var(--bg);padding:2px 5px;border-radius:4px">{hora}</code>.</p>
+          <textarea class="form-input" id="msg-confirmacao" rows="5" style="resize:vertical">✅ Olá, {nome}! Seu agendamento foi confirmado.
+
+📋 Serviço: {servico}
+📅 Data: {data}
+🕐 Horário: {hora}
+
+Qualquer dúvida, me chame aqui no WhatsApp. Até lá! 😊</textarea>
+        </div>
+        <div class="card" style="margin-bottom:16px">
+          <div style="font-weight:700;margin-bottom:8px;font-size:15px">❌ Mensagem de Cancelamento para o Cliente</div>
+          <textarea class="form-input" id="msg-cancelamento" rows="4" style="resize:vertical">Olá, {nome}! Infelizmente precisamos cancelar seu agendamento de {servico} previsto para {data} às {hora}.
+
+Entre em contato para remarcar. Pedimos desculpas pelo inconveniente.</textarea>
+        </div>
+        <div class="card">
+          <div style="font-weight:700;margin-bottom:8px;font-size:15px">🔔 Mensagem que VOCÊ recebe quando o cliente agenda</div>
+          <p style="font-size:13px;color:var(--text2);margin-bottom:12px">Formato da notificação que chega no seu WhatsApp.</p>
+          <textarea class="form-input" id="msg-notificacao" rows="6" style="resize:vertical">🔔 NOVO AGENDAMENTO!
+
+👤 Cliente: {nome}
+📞 WhatsApp: {zap}
+📋 Serviço: {servico}
+📅 Data: {data} às {hora}
+💬 Observação: {obs}
+
+Acesse o app para confirmar ou cancelar.</textarea>
+          <button class="btn btn-primary" style="margin-top:12px" onclick="salvarMensagens()">Salvar mensagens</button>
+        </div>
+      </div>
+
+      <div id="cfg-visual" style="display:none">
+        <div class="card">
+          <div style="font-weight:700;margin-bottom:16px;font-size:15px">🎨 Identidade Visual</div>
+          <p style="font-size:13px;color:var(--text2);margin-bottom:12px">Cor principal (aparece também na tela do cliente):</p>
+          <div class="color-grid">
+            <div class="color-opt selected" style="background:#1565C0" onclick="setColor('#1565C0',this)" title="Azul"></div>
+            <div class="color-opt" style="background:#C62828" onclick="setColor('#C62828',this)" title="Vermelho"></div>
+            <div class="color-opt" style="background:#2E7D32" onclick="setColor('#2E7D32',this)" title="Verde"></div>
+            <div class="color-opt" style="background:#FF6F00" onclick="setColor('#FF6F00',this)" title="Laranja"></div>
+            <div class="color-opt" style="background:#6A1B9A" onclick="setColor('#6A1B9A',this)" title="Roxo"></div>
+            <div class="color-opt" style="background:#00838F" onclick="setColor('#00838F',this)" title="Teal"></div>
+            <div class="color-opt" style="background:#AD1457" onclick="setColor('#AD1457',this)" title="Pink"></div>
+            <div class="color-opt" style="background:#37474F" onclick="setColor('#37474F',this)" title="Cinza"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="cfg-horarios" style="display:none">
+        <div class="card">
+          <div style="font-weight:700;margin-bottom:16px;font-size:15px">🕐 Horários de Atendimento</div>
+          <p style="font-size:13px;color:var(--text2);margin-bottom:12px">Esses horários aparecem na tela do cliente para ele escolher.</p>
+          <div id="horarios-grid"></div>
+        </div>
+      </div>
+
+      <div id="cfg-pagamentos" style="display:none">
+        <div class="card">
+          <div style="font-weight:700;margin-bottom:16px;font-size:15px">💳 Formas de Pagamento Aceitas</div>
+          <div style="display:flex;flex-direction:column;gap:12px" id="pagamentos-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ MEU APP (link público + QR Code) ══ -->
+  <div class="page" id="page-meuapp">
+    <div class="topbar"><div><div class="topbar-title">Meu App</div><div class="topbar-sub">Link e QR Code para seus clientes agendarem</div></div></div>
+    <div style="padding:24px 28px;max-width:640px">
+      <div class="card" style="text-align:center;padding:32px 24px;margin-bottom:16px">
+        <div style="font-size:14px;color:var(--text2);margin-bottom:6px">Link do seu app de agendamento</div>
+        <div style="font-weight:700;font-size:17px;color:var(--primary);word-break:break-all;margin-bottom:18px" id="meuapp-link-text">padraoeletrica.app/agendar/padraoeletrica</div>
+        <div id="meuapp-qrcode" style="display:flex;justify-content:center;margin-bottom:18px"></div>
+        <p style="font-size:12px;color:var(--text3);margin-bottom:20px">Imprima este QR Code ou envie o link para que seus clientes acessem, façam login com WhatsApp e solicitem serviços diretamente.</p>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="copiarLinkApp()">📋 Copiar Link</button>
+          <button class="btn btn-green" onclick="compartilharAppZap()">💬 Compartilhar no WhatsApp</button>
+          <button class="btn btn-outline" onclick="abrirAppCliente()">🔗 Abrir App</button>
+        </div>
+      </div>
+      <div class="card">
+        <div style="font-weight:700;margin-bottom:10px;font-size:15px">Como funciona para o cliente</div>
+        <div style="font-size:13.5px;color:var(--text2);line-height:1.9">
+          1️⃣ Cliente acessa o link ou escaneia o QR Code<br>
+          2️⃣ Confirma identidade com o número de WhatsApp e nome<br>
+          3️⃣ Escolhe o serviço, profissional (se houver), data e horário<br>
+          4️⃣ Confirma o agendamento — a solicitação cai direto na aba <b>Solicitações</b> aqui no seu painel<br>
+          5️⃣ O WhatsApp abre automaticamente avisando você do novo pedido
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ══ MODALS ══ -->
+
+<!-- Modal Serviço -->
+<div class="modal-overlay" id="modal-servico">
+  <div class="modal">
+    <div class="modal-header"><h2 id="modal-servico-title">Novo Serviço</h2><button class="modal-close" onclick="closeModal('modal-servico')">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="srv-edit-id">
+      <div class="form-group">
+        <label class="form-label">Ícone / Categoria</label>
+        <select class="form-input" id="srv-icone">
+          <option value="⚡">⚡ Elétrica</option>
+          <option value="🔧">🔧 Hidráulica</option>
+          <option value="📷">📷 Câmeras de Segurança</option>
+          <option value="🪑">🪑 Montagem de Móveis</option>
+          <option value="🏗️">🏗️ Construção Civil</option>
+          <option value="🔨">🔨 Outros</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Nome</label><input class="form-input" id="srv-nome" placeholder="Ex: Instalação de tomadas"></div>
+      <div class="form-group"><label class="form-label">Descrição</label><input class="form-input" id="srv-desc" placeholder="Descreva o serviço"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Preço (R$)</label><input class="form-input" id="srv-preco" type="number" min="0" step="0.01" placeholder="0,00"></div>
+        <div class="form-group"><label class="form-label">Duração (min)</label><input class="form-input" id="srv-duracao" type="number" min="15" step="15" value="60"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <select class="form-input" id="srv-status"><option value="ativo">Ativo</option><option value="inativo">Inativo</option></select>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-outline" onclick="closeModal('modal-servico')">Cancelar</button>
+        <button class="btn btn-primary" onclick="salvarServico()">Salvar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Agendamento (admin) -->
+<div class="modal-overlay" id="modal-agendamento">
+  <div class="modal">
+    <div class="modal-header"><h2>Novo Agendamento</h2><button class="modal-close" onclick="closeModal('modal-agendamento')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">Serviço</label><select class="form-input" id="ag-servico"></select></div>
+      <div class="form-group"><label class="form-label">Profissional</label><select class="form-input" id="ag-profissional"></select></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Data</label><input class="form-input" id="ag-data" type="date"></div>
+        <div class="form-group"><label class="form-label">Horário</label><input class="form-input" id="ag-hora" type="time" value="09:00"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Cliente</label><input class="form-input" id="ag-cliente" placeholder="Nome do cliente"></div>
+      <div class="form-group"><label class="form-label">WhatsApp do Cliente</label><input class="form-input" id="ag-zap" placeholder="84900000000" type="tel"></div>
+      <div class="form-group"><label class="form-label">Observações</label><input class="form-input" id="ag-obs" placeholder="Opcional"></div>
+      <div class="form-actions">
+        <button class="btn btn-outline" onclick="closeModal('modal-agendamento')">Cancelar</button>
+        <button class="btn btn-primary" onclick="salvarAgendamento()">Criar Agendamento</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Profissional -->
+<div class="modal-overlay" id="modal-profissional">
+  <div class="modal">
+    <div class="modal-header"><h2>Novo Profissional</h2><button class="modal-close" onclick="closeModal('modal-profissional')">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="modal-prof-edit-id">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Nome</label><input class="form-input" id="pf-nome" placeholder="Nome do profissional"></div>
+        <div class="form-group"><label class="form-label">Telefone (opcional)</label><input class="form-input" id="pf-tel" placeholder="84900000000"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Especialidade</label><input class="form-input" id="pf-esp" placeholder="Ex: Elétrica e Câmeras"></div>
+      <div class="form-actions">
+        <button class="btn btn-outline" onclick="closeModal('modal-profissional')">Cancelar</button>
+        <button class="btn btn-primary" onclick="salvarProfissional()">Salvar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Transação -->
+<div class="modal-overlay" id="modal-transacao">
+  <div class="modal">
+    <div class="modal-header"><h2>Nova Transação</h2><button class="modal-close" onclick="closeModal('modal-transacao')">✕</button></div>
+    <div class="modal-body">
+      <div class="fin-tabs" style="margin-bottom:16px">
+        <button class="fin-tab active" id="tab-despesa" onclick="setFinTab('despesa')">Despesa</button>
+        <button class="fin-tab" id="tab-receita" onclick="setFinTab('receita')">Receita</button>
+      </div>
+      <input type="hidden" id="fin-tipo" value="despesa">
+      <div class="form-group"><label class="form-label">Valor (R$)</label><input class="form-input" id="fin-valor" type="number" min="0" step="0.01" placeholder="0,00"></div>
+      <div class="form-group"><label class="form-label">Data</label><input class="form-input" id="fin-data" type="date"></div>
+      <div class="form-group">
+        <label class="form-label">Categoria</label>
+        <select class="form-input" id="fin-cat">
+          <option>Serviço prestado</option><option>Material comprado</option><option>Combustível</option><option>Ferramentas</option><option>Outros</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Descrição</label><input class="form-input" id="fin-desc" placeholder="Ex: Serviço elétrica – Maria"></div>
+      <div class="form-actions">
+        <button class="btn btn-outline" onclick="closeModal('modal-transacao')">Cancelar</button>
+        <button class="btn btn-primary" onclick="salvarTransacao()">Salvar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Cliente -->
+<div class="modal-overlay" id="modal-cliente">
+  <div class="modal">
+    <div class="modal-header"><h2>Novo Cliente</h2><button class="modal-close" onclick="closeModal('modal-cliente')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">Nome</label><input class="form-input" id="cl-nome" placeholder="Nome do cliente"></div>
+      <div class="form-group"><label class="form-label">WhatsApp</label><input class="form-input" id="cl-zap" placeholder="84900000000" type="tel"></div>
+      <div class="form-group"><label class="form-label">Endereço (opcional)</label><input class="form-input" id="cl-end" placeholder="Rua, número, bairro"></div>
+      <div class="form-actions">
+        <button class="btn btn-outline" onclick="closeModal('modal-cliente')">Cancelar</button>
+        <button class="btn btn-primary" onclick="salvarCliente()">Cadastrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ─── STATE ───────────────────────────────────────────────────────
+const SUPABASE_URL = 'https://cbcphjxlpkgmoevlabsh.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_Tjv6xV_-rNVUrMl09Lx3-Q_8BM8JdMR';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const state = {
+  servicos: [],
+  agendamentos: [],    // confirmados/agendados pelo admin
+  solicitacoes: [],    // vindos da tela pública do cliente
+  profissionais: [],
+  transacoes: [],
+  clientes: [],
+  config: {
+    nome: 'Padrão Elétrica',
+    link: 'padraoeletrica',
+    zap: '',
+    desc: 'Instalações e manutenções elétricas profissionais',
+    cor: '#1565C0',
+    horarios: null,
+    pagamentos: ['Dinheiro','PIX'],
+    msgConfirmacao: '',
+    msgCancelamento: '',
+    msgNotificacao: '',
+  },
+  semanaOffset: 0,
+  diaSelecionado: new Date().toISOString().split('T')[0],
+};
+
+// ── Conversores banco (snake_case) <-> app (camelCase) ──
+function configDoBanco(row) {
+  if (!row) return state.config;
+  return {
+    nome: row.nome, link: row.link, zap: row.zap || '',
+    desc: row.desc_ || '', cor: row.cor || '#1565C0',
+    horarios: row.horarios || null,
+    pagamentos: row.pagamentos || ['Dinheiro','PIX'],
+    msgNotificacao: row.msg_notificacao || '',
+    msgConfirmacao: row.msg_confirmacao || '',
+    msgCancelamento: row.msg_cancelamento || '',
+  };
+}
+function configParaBanco(cfg) {
+  return {
+    id: 1, nome: cfg.nome, link: cfg.link, zap: cfg.zap,
+    desc_: cfg.desc, cor: cfg.cor, horarios: cfg.horarios,
+    pagamentos: cfg.pagamentos,
+    msg_notificacao: cfg.msgNotificacao,
+    msg_confirmacao: cfg.msgConfirmacao,
+    msg_cancelamento: cfg.msgCancelamento,
+  };
+}
+function solicitacaoDoBanco(row) {
+  return { id: row.id, ts: row.ts, cliente: row.cliente, zap: row.zap,
+    servico: row.servico, icone: row.icone, data: row.data, hora: row.hora,
+    profissional: row.profissional, obs: row.obs, valor: row.valor,
+    status: row.status, origem: row.origem };
+}
+function agendamentoDoBanco(row) {
+  return { id: row.id, origemId: row.origem_id, cliente: row.cliente, zap: row.zap,
+    servico: row.servico, data: row.data, hora: row.hora,
+    profissional: row.profissional, obs: row.obs, valor: row.valor,
+    status: row.status, origem: row.origem };
+}
+function clienteParaBanco(c) {
+  return { id: c.id, nome: c.nome, zap: c.zap, end_: c.end || '',
+    pedidos: c.pedidos || 0, gasto: c.gasto || 0 };
+}
+
+async function carregar() {
+  try {
+    const [cfg, srv, ags, sols, profs, cls, tr] = await Promise.all([
+      sb.from('config').select('*').eq('id', 1).maybeSingle(),
+      sb.from('servicos').select('*'),
+      sb.from('agendamentos').select('*'),
+      sb.from('solicitacoes').select('*'),
+      sb.from('profissionais').select('*'),
+      sb.from('clientes').select('*'),
+      sb.from('transacoes').select('*'),
+    ]);
+    if (cfg.data) state.config = configDoBanco(cfg.data);
+    if (srv.data) state.servicos = srv.data;
+    if (ags.data) state.agendamentos = ags.data.map(agendamentoDoBanco);
+    if (sols.data) state.solicitacoes = sols.data.map(solicitacaoDoBanco);
+    if (profs.data) state.profissionais = profs.data;
+    if (cls.data) state.clientes = cls.data;
+    if (tr.data) state.transacoes = tr.data;
+  } catch(e) { console.error('Erro ao carregar do Supabase:', e); }
+}
+
+// salvar() grava TUDO que está em memória de volta no Supabase.
+// Mantido com a mesma assinatura usada no resto do código (chamado
+// depois de qualquer alteração local em state.*), usando upsert para
+// criar ou atualizar conforme necessário.
+async function salvar() {
+  try {
+    await Promise.all([
+      sb.from('config').upsert(configParaBanco(state.config)),
+      state.servicos.length ? sb.from('servicos').upsert(state.servicos) : Promise.resolve(),
+      state.profissionais.length ? sb.from('profissionais').upsert(state.profissionais) : Promise.resolve(),
+      state.clientes.length ? sb.from('clientes').upsert(state.clientes.map(clienteParaBanco)) : Promise.resolve(),
+      state.transacoes.length ? sb.from('transacoes').upsert(state.transacoes) : Promise.resolve(),
+      state.solicitacoes.length ? sb.from('solicitacoes').upsert(state.solicitacoes.map(s => ({
+        id: s.id, ts: s.ts, cliente: s.cliente, zap: s.zap, servico: s.servico,
+        icone: s.icone, data: s.data, hora: s.hora, profissional: s.profissional,
+        obs: s.obs, valor: s.valor, status: s.status, origem: s.origem,
+      }))) : Promise.resolve(),
+      state.agendamentos.length ? sb.from('agendamentos').upsert(state.agendamentos.map(a => ({
+        id: a.id, origem_id: a.origemId || null, cliente: a.cliente, zap: a.zap,
+        servico: a.servico, data: a.data, hora: a.hora, profissional: a.profissional,
+        obs: a.obs, valor: a.valor, status: a.status, origem: a.origem,
+      }))) : Promise.resolve(),
+    ]);
+    // Remove no banco o que foi excluído localmente (solicitações/agendamentos)
+    await sincronizarExclusoes();
+  } catch(e) { console.error('Erro ao salvar no Supabase:', e); }
+}
+
+// Guarda os ids vistos na última carga para detectar exclusões locais
+let _ultimosIdsSolicitacoes = new Set();
+let _ultimosIdsAgendamentos = new Set();
+async function sincronizarExclusoes() {
+  const idsSolAtuais = new Set(state.solicitacoes.map(s => s.id));
+  const idsAgAtuais = new Set(state.agendamentos.map(a => a.id));
+  const solsRemovidas = [..._ultimosIdsSolicitacoes].filter(id => !idsSolAtuais.has(id));
+  const agsRemovidos = [..._ultimosIdsAgendamentos].filter(id => !idsAgAtuais.has(id));
+  if (solsRemovidas.length) await sb.from('solicitacoes').delete().in('id', solsRemovidas);
+  if (agsRemovidos.length) await sb.from('agendamentos').delete().in('id', agsRemovidos);
+  _ultimosIdsSolicitacoes = idsSolAtuais;
+  _ultimosIdsAgendamentos = idsAgAtuais;
+}
+
+// ─── HELPERS ─────────────────────────────────────────────────────
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
+function brl(v) { return 'R$ ' + (+v || 0).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2}); }
+function toast(msg, dur=2800) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), dur);
+}
+function today() { return new Date().toISOString().split('T')[0]; }
+function fmtDate(d) {
+  if (!d) return '–';
+  const dt = new Date(d + 'T00:00:00');
+  return dt.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit', year:'numeric'});
+}
+function fmtMsg(template, vars) {
+  return template.replace(/\{(\w+)\}/g, (_, k) => vars[k] || '');
+}
+function numZap(n) { return (n || '').replace(/\D/g, ''); }
+function zapLink(numero, msg) {
+  return 'https://wa.me/55' + numZap(numero) + '?text=' + encodeURIComponent(msg);
+}
+
+// ─── NAV ─────────────────────────────────────────────────────────
+function openPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.querySelector('[data-page="' + id + '"]').classList.add('active');
+  if (id === 'dashboard') renderDashboard();
+  if (id === 'solicita') renderSolicita();
+  if (id === 'servicos') renderServicos();
+  if (id === 'agenda') renderAgenda();
+  if (id === 'profissionais') renderProfissionais();
+  if (id === 'financeiro') renderFinanceiro();
+  if (id === 'clientes') renderClientes();
+  if (id === 'meuapp') renderMeuApp();
+  if (window.innerWidth <= 768) closeSidebar();
+}
+function toggleSidebar() {
+  const s = document.getElementById('sidebar');
+  const o = document.getElementById('overlay-mob');
+  s.classList.toggle('mob-open');
+  o.style.display = s.classList.contains('mob-open') ? 'block' : 'none';
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('mob-open');
+  document.getElementById('overlay-mob').style.display = 'none';
+}
+
+// ─── MODALS ──────────────────────────────────────────────────────
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+  if (id === 'modal-agendamento') preencherSelectsAg();
+  if (id === 'modal-servico') { document.getElementById('modal-servico-title').textContent = 'Novo Serviço'; }
+  const dt = document.getElementById('ag-data'); if (dt) dt.value = today();
+  const fd = document.getElementById('fin-data'); if (fd) fd.value = today();
+}
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+
+// ─── SERVIÇOS ────────────────────────────────────────────────────
+function salvarServico() {
+  const nome = document.getElementById('srv-nome').value.trim();
+  if (!nome) { toast('Informe o nome do serviço'); return; }
+  const editId = document.getElementById('srv-edit-id').value;
+  const obj = {
+    id: editId || uid(),
+    icone: document.getElementById('srv-icone').value,
+    nome, desc: document.getElementById('srv-desc').value,
+    preco: +document.getElementById('srv-preco').value || 0,
+    duracao: +document.getElementById('srv-duracao').value || 60,
+    status: document.getElementById('srv-status').value,
+  };
+  if (editId) {
+    const i = state.servicos.findIndex(s => s.id === editId);
+    state.servicos[i] = obj;
+  } else {
+    state.servicos.push(obj);
+  }
+  salvar(); closeModal('modal-servico'); renderServicos();
+  toast(editId ? 'Serviço atualizado!' : 'Serviço criado!');
+  limparFormServico();
+}
+function limparFormServico() {
+  ['srv-edit-id','srv-nome','srv-desc','srv-preco'].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('srv-duracao').value = 60;
+  document.getElementById('srv-status').value = 'ativo';
+}
+function editarServico(id) {
+  const s = state.servicos.find(x => x.id === id);
+  if (!s) return;
+  document.getElementById('modal-servico-title').textContent = 'Editar Serviço';
+  document.getElementById('srv-edit-id').value = s.id;
+  document.getElementById('srv-icone').value = s.icone;
+  document.getElementById('srv-nome').value = s.nome;
+  document.getElementById('srv-desc').value = s.desc;
+  document.getElementById('srv-preco').value = s.preco;
+  document.getElementById('srv-duracao').value = s.duracao;
+  document.getElementById('srv-status').value = s.status;
+  openModal('modal-servico');
+}
+function excluirServico(id) {
+  if (!confirm('Excluir este serviço?')) return;
+  state.servicos = state.servicos.filter(s => s.id !== id);
+  salvar(); renderServicos(); toast('Serviço excluído.');
+}
+function renderServicos(filtro='') {
+  const list = document.getElementById('servicos-list');
+  const items = state.servicos.filter(s => !filtro || s.nome.toLowerCase().includes(filtro.toLowerCase()));
+  if (!items.length) {
+    list.innerHTML = `<div class="empty" style="padding:40px"><p>${filtro ? 'Nenhum encontrado' : 'Nenhum serviço cadastrado'}</p><span>Clique em "+ Serviço" para começar.</span></div>`;
+    return;
+  }
+  list.innerHTML = items.map(s => `
+    <div class="servico-item">
+      <div class="servico-img">${s.icone}</div>
+      <div style="flex:1">
+        <div class="servico-name">${s.nome}</div>
+        <div class="servico-desc">${s.desc || '–'}</div>
+        <div class="servico-price">${brl(s.preco)} · ${s.duracao} min</div>
+      </div>
+      <span class="badge ${s.status === 'ativo' ? 'badge-green' : 'badge-red'}">${s.status === 'ativo' ? 'Ativo' : 'Inativo'}</span>
+      <div style="display:flex;gap:6px;margin-left:8px">
+        <button class="btn btn-outline btn-sm" onclick="editarServico('${s.id}')">✏️</button>
+        <button class="btn btn-sm" style="background:var(--red-light);color:var(--red);border:1px solid #ffcdd2" onclick="excluirServico('${s.id}')">🗑️</button>
+      </div>
+    </div>`).join('');
+}
+function filtrarServicos(v) { renderServicos(v); }
+
+// ─── SOLICITAÇÕES (tela pública → admin) ─────────────────────────
+function renderSolicita() {
+  const list = document.getElementById('solicita-list');
+  const items = [...(state.solicitacoes || [])].sort((a,b) => b.ts - a.ts);
+  if (!items.length) {
+    list.innerHTML = `<div class="empty"><p>Nenhuma solicitação ainda</p><span>Compartilhe o link com seus clientes para começar a receber agendamentos</span><br><br><button class="btn btn-primary" style="margin-top:8px" onclick="compartilharZap()">📤 Compartilhar Link no WhatsApp</button></div>`;
+    return;
+  }
+  list.innerHTML = items.map(s => {
+    const statusClass = s.status === 'confirmado' ? 'badge-green' : s.status === 'cancelado' ? 'badge-red' : 'badge-orange';
+    const statusTxt = s.status === 'confirmado' ? 'Confirmado' : s.status === 'cancelado' ? 'Cancelado' : '🔔 Novo';
+    return `<div class="agendamento-card ${s.status === 'pendente' ? 'novo' : ''}" style="margin-bottom:10px">
+      <div style="font-size:22px">${s.icone || '📋'}</div>
+      <div class="ag-info" style="flex:1">
+        <div class="ag-client">${s.cliente}</div>
+        <div class="ag-service">📋 ${s.servico}</div>
+        <div class="ag-prof">📅 ${fmtDate(s.data)} às ${s.hora}</div>
+        ${s.profissional ? `<div class="ag-prof">👤 ${s.profissional}</div>` : ''}
+        ${s.obs ? `<div class="ag-obs">💬 "${s.obs}"</div>` : ''}
+        <div class="ag-prof">📞 ${s.zap || '–'}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;min-width:120px">
+        <span class="badge ${statusClass}">${statusTxt}</span>
+        <div style="font-size:11px;color:var(--text3)">${new Date(s.ts).toLocaleString('pt-BR')}</div>
+        ${s.status === 'pendente' ? `
+        <button class="btn btn-sm" style="background:var(--green-light);color:var(--green);border:1px solid #c8e6c9;width:100%;justify-content:center" onclick="confirmarSolicita('${s.id}')">✅ Confirmar</button>
+        <button class="btn btn-sm" style="background:var(--red-light);color:var(--red);border:1px solid #ffcdd2;width:100%;justify-content:center" onclick="cancelarSolicita('${s.id}')">❌ Cancelar</button>
+        ` : `
+        ${s.zap ? `<a href="${zapLink(s.zap, 'Olá '+s.cliente+'! Como posso ajudar?')}" target="_blank" class="btn btn-sm btn-green" style="width:100%;justify-content:center">💬 WhatsApp</a>` : ''}
+        <button class="btn btn-sm btn-outline" style="width:100%;justify-content:center" onclick="excluirSolicita('${s.id}')">🗑️ Excluir</button>
+        `}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function confirmarSolicita(id) {
+  const s = state.solicitacoes.find(x => x.id === id);
+  if (!s) return;
+  s.status = 'confirmado';
+  // Criar agendamento real
+  const ag = { id: uid(), origemId: s.id, cliente: s.cliente, data: s.data, hora: s.hora, zap: s.zap, servico: s.servico, profissional: s.profissional, obs: s.obs, status: 'confirmado', valor: s.valor || 0, origem: 'formulario' };
+  state.agendamentos.push(ag);
+  // Auto-registrar cliente
+  if (!state.clientes.find(c => c.nome === s.cliente)) {
+    state.clientes.push({ id: uid(), nome: s.cliente, zap: s.zap, end: '', pedidos: 0, gasto: 0 });
+  }
+  salvar();
+  renderSolicita();
+  atualizarBadge();
+  toast('✅ Agendamento confirmado!');
+  // Abrir WhatsApp para avisar cliente
+  if (s.zap) {
+    const template = state.config.msgConfirmacao || '✅ Olá, {nome}! Seu agendamento foi confirmado.\n\n📋 Serviço: {servico}\n📅 Data: {data}\n🕐 Horário: {hora}\n\nAté lá! 😊';
+    const msg = fmtMsg(template, { nome: s.cliente, servico: s.servico, data: fmtDate(s.data), hora: s.hora });
+    setTimeout(() => window.open(zapLink(s.zap, msg), '_blank'), 400);
+  }
+}
+
+function cancelarSolicita(id) {
+  const s = state.solicitacoes.find(x => x.id === id);
+  if (!s) return;
+  if (!confirm('Cancelar este agendamento e avisar o cliente?')) return;
+  s.status = 'cancelado';
+  // Espelha o cancelamento no agendamento correspondente da Agenda, se existir
+  const ag = state.agendamentos.find(x => x.origemId === s.id);
+  if (ag) ag.status = 'cancelado';
+  salvar(); renderSolicita(); atualizarBadge();
+  toast('Agendamento cancelado.');
+  if (s.zap) {
+    const template = state.config.msgCancelamento || 'Olá, {nome}! Infelizmente precisamos cancelar seu agendamento de {servico} previsto para {data} às {hora}. Entre em contato para remarcar.';
+    const msg = fmtMsg(template, { nome: s.cliente, servico: s.servico, data: fmtDate(s.data), hora: s.hora });
+    setTimeout(() => window.open(zapLink(s.zap, msg), '_blank'), 400);
+  }
+}
+
+function excluirSolicita(id) {
+  if (!confirm('Excluir esta solicitação?')) return;
+  // Remove também o agendamento espelhado na Agenda, se existir
+  state.agendamentos = state.agendamentos.filter(x => x.origemId !== id);
+  state.solicitacoes = state.solicitacoes.filter(x => x.id !== id);
+  salvar(); renderSolicita(); atualizarBadge();
+}
+
+function atualizarBadge() {
+  const novas = (state.solicitacoes || []).filter(s => s.status === 'pendente').length;
+  const badge = document.getElementById('badge-solicita');
+  if (novas > 0) {
+    badge.style.display = 'inline';
+    badge.textContent = novas;
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+// ─── AGENDA ──────────────────────────────────────────────────────
+function navegarSemana(dir) { state.semanaOffset += dir; renderAgenda(); }
+function renderCalSemana() {
+  const hoje = new Date();
+  const base = new Date(hoje);
+  base.setDate(hoje.getDate() + state.semanaOffset * 7);
+  const dow = base.getDay();
+  const lunes = new Date(base); lunes.setDate(base.getDate() - dow + 1);
+  const dias = ['SEG','TER','QUA','QUI','SEX','SÁB','DOM'];
+  let html = '';
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(lunes); d.setDate(lunes.getDate() + i);
+    const ds = d.toISOString().split('T')[0];
+    const isToday = ds === today();
+    const isSel = ds === state.diaSelecionado;
+    const temAg = state.agendamentos.some(a => a.data === ds);
+    html += `<div class="cal-day ${isToday ? 'today' : ''} ${(!isToday && isSel) ? 'selected' : ''}" onclick="selecionarDia('${ds}')">
+      <div class="cal-day-name">${dias[i]}</div>
+      <div class="cal-day-num">${d.getDate()}</div>
+      ${temAg ? '<div class="cal-day-dot"></div>' : '<div style="height:9px"></div>'}
+    </div>`;
+  }
+  document.getElementById('cal-week').innerHTML = html;
+}
+function selecionarDia(ds) { state.diaSelecionado = ds; renderAgenda(); }
+function renderAgenda() {
+  renderCalSemana();
+  const ags = state.agendamentos.filter(a => a.data === state.diaSelecionado).sort((a,b) => a.hora.localeCompare(b.hora));
+  const list = document.getElementById('agenda-list');
+  document.getElementById('ag-hoje').textContent = state.agendamentos.filter(a => a.data === today()).length;
+  document.getElementById('ag-pendentes').textContent = state.agendamentos.filter(a => a.status === 'pendente').length;
+  if (!ags.length) {
+    list.innerHTML = `<div class="empty"><p>Nenhum agendamento em ${fmtDate(state.diaSelecionado)}</p><button class="btn btn-outline btn-sm" style="margin-top:8px" onclick="openModal('modal-agendamento')">+ Criar agendamento</button></div>`;
+    return;
+  }
+  list.innerHTML = ags.map(a => {
+    const statusClass = a.status === 'confirmado' ? 'badge-green' : a.status === 'cancelado' ? 'badge-red' : 'badge-yellow';
+    const isForm = a.origem === 'formulario';
+    return `<div class="agendamento-card">
+      <div class="ag-time">${a.hora}</div>
+      <div class="ag-info">
+        <div class="ag-client">${a.cliente} ${isForm ? '<span class="badge badge-blue" style="font-size:10px">App</span>' : ''}</div>
+        <div class="ag-service">${a.servico}</div>
+        <div class="ag-prof">👤 ${a.profissional || '–'}</div>
+        ${a.obs ? `<div class="ag-obs">💬 ${a.obs}</div>` : ''}
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
+        <span class="badge ${statusClass}">${a.status}</span>
+        <div style="display:flex;gap:4px">
+          ${a.status !== 'confirmado' ? `<button class="btn btn-sm" style="background:var(--green-light);color:var(--green);border:1px solid #c8e6c9" onclick="confirmarAg('${a.id}')">✓</button>` : ''}
+          ${a.zap ? `<a href="${zapLink(a.zap, 'Olá '+a.cliente+'!')}" target="_blank" class="btn btn-sm btn-green">💬</a>` : ''}
+          <button class="btn btn-sm" style="background:var(--red-light);color:var(--red);border:1px solid #ffcdd2" onclick="excluirAg('${a.id}')">🗑️</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function preencherSelectsAg() {
+  const ss = document.getElementById('ag-servico');
+  ss.innerHTML = state.servicos.filter(s => s.status === 'ativo').map(s => `<option value="${s.nome}">${s.icone} ${s.nome}</option>`).join('') || '<option>Nenhum serviço cadastrado</option>';
+  const pp = document.getElementById('ag-profissional');
+  pp.innerHTML = '<option value="">Sem profissional</option>' + state.profissionais.filter(p => p.ativo).map(p => `<option value="${p.nome}">${p.nome}</option>`).join('');
+}
+function salvarAgendamento() {
+  const cliente = document.getElementById('ag-cliente').value.trim();
+  const data = document.getElementById('ag-data').value;
+  const hora = document.getElementById('ag-hora').value;
+  if (!cliente || !data || !hora) { toast('Preencha cliente, data e hora'); return; }
+  const servico = document.getElementById('ag-servico').value;
+  const srv = state.servicos.find(s => s.nome === servico);
+  const ag = {
+    id: uid(), cliente, data, hora,
+    obs: document.getElementById('ag-obs').value,
+    zap: document.getElementById('ag-zap').value,
+    servico,
+    profissional: document.getElementById('ag-profissional').value,
+    status: 'confirmado', valor: srv ? srv.preco : 0,
+  };
+  state.agendamentos.push(ag);
+  if (!state.clientes.find(c => c.nome === cliente)) {
+    state.clientes.push({ id: uid(), nome: cliente, zap: ag.zap, end: '', pedidos: 0, gasto: 0 });
+  }
+  state.diaSelecionado = data;
+  salvar(); closeModal('modal-agendamento'); renderAgenda(); toast('Agendamento criado!');
+}
+function confirmarAg(id) {
+  const a = state.agendamentos.find(x => x.id === id);
+  if (!a) return;
+  a.status = 'confirmado';
+  salvar(); renderAgenda(); toast('✅ Agendamento confirmado!');
+  // Abrir WhatsApp para avisar cliente (mesmo template usado em confirmarSolicita)
+  if (a.zap) {
+    const template = state.config.msgConfirmacao || '✅ Olá, {nome}! Seu agendamento foi confirmado.\n\n📋 Serviço: {servico}\n📅 Data: {data}\n🕐 Horário: {hora}\n\nAté lá! 😊';
+    const msg = fmtMsg(template, { nome: a.cliente, servico: a.servico, data: fmtDate(a.data), hora: a.hora });
+    setTimeout(() => window.open(zapLink(a.zap, msg), '_blank'), 400);
+  }
+}
+function excluirAg(id) {
+  if (!confirm('Excluir agendamento?')) return;
+  const a = state.agendamentos.find(x => x.id === id);
+  // Se este agendamento veio de uma solicitação, remove a solicitação correspondente também
+  if (a && a.origemId && state.solicitacoes) {
+    state.solicitacoes = state.solicitacoes.filter(x => x.id !== a.origemId);
+  }
+  state.agendamentos = state.agendamentos.filter(x => x.id !== id);
+  salvar(); renderAgenda(); toast('Agendamento excluído.');
+}
+
+// ─── PROFISSIONAIS ───────────────────────────────────────────────
+function salvarProfissional() {
+  const nome = document.getElementById('pf-nome').value.trim();
+  if (!nome) { toast('Informe o nome'); return; }
+  const editId = document.getElementById('modal-prof-edit-id') ? document.getElementById('modal-prof-edit-id').value : '';
+  if (editId) {
+    const i = state.profissionais.findIndex(x => x.id === editId);
+    if (i >= 0) state.profissionais[i] = { ...state.profissionais[i], nome, tel: document.getElementById('pf-tel').value, esp: document.getElementById('pf-esp').value };
+    toast('Profissional atualizado!');
+  } else {
+    state.profissionais.push({ id: uid(), nome, tel: document.getElementById('pf-tel').value, esp: document.getElementById('pf-esp').value, ativo: true });
+    toast('Profissional adicionado!');
+  }
+  salvar(); closeModal('modal-profissional'); renderProfissionais();
+  ['pf-nome','pf-tel','pf-esp'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+  if (document.getElementById('modal-prof-edit-id')) document.getElementById('modal-prof-edit-id').value = '';
+  document.querySelector('#modal-profissional .modal-header h2').textContent = 'Novo Profissional';
+}
+function toggleProf(id) {
+  const p = state.profissionais.find(x => x.id === id);
+  if (p) { p.ativo = !p.ativo; salvar(); renderProfissionais(); }
+}
+function excluirProf(id) {
+  if (!confirm('Excluir profissional?')) return;
+  state.profissionais = state.profissionais.filter(x => x.id !== id);
+  salvar(); renderProfissionais(); toast('Excluído.');
+}
+function editarProfissional(id) {
+  const p = state.profissionais.find(x => x.id === id);
+  if (!p) return;
+  document.getElementById('modal-prof-edit-id').value = p.id;
+  document.getElementById('pf-nome').value = p.nome;
+  document.getElementById('pf-tel').value = p.tel || '';
+  document.getElementById('pf-esp').value = p.esp || '';
+  document.querySelector('#modal-profissional .modal-header h2').textContent = 'Editar Profissional';
+  document.getElementById('modal-profissional').classList.add('open');
+}
+function renderProfissionais() {
+  const list = document.getElementById('prof-list');
+  if (!state.profissionais.length) {
+    list.innerHTML = `<div class="empty" style="width:100%;padding:40px"><p>Nenhum profissional cadastrado</p></div>`;
+    return;
+  }
+  list.innerHTML = state.profissionais.map(p => `
+    <div class="prof-card">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="client-avatar" style="width:36px;height:36px;font-size:14px">${p.nome[0].toUpperCase()}</div>
+        <div>
+          <div style="font-size:14px;font-weight:600">${p.nome}</div>
+          <div style="font-size:11px;color:var(--accent)">${p.esp || 'Todos os serviços'}</div>
+        </div>
+        <label class="toggle" style="margin-left:auto">
+          <input type="checkbox" ${p.ativo ? 'checked' : ''} onchange="toggleProf('${p.id}')">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-sm btn-outline" style="flex:1" onclick="editarProfissional('${p.id}')">✏️ Editar</button>
+        <button class="btn btn-sm" style="background:var(--red-light);color:var(--red);border:1px solid #ffcdd2" onclick="excluirProf('${p.id}')">🗑️</button>
+      </div>
+    </div>`).join('');
+}
+
+// ─── FINANCEIRO ──────────────────────────────────────────────────
+function setFinTab(tipo) {
+  document.getElementById('fin-tipo').value = tipo;
+  document.getElementById('tab-despesa').className = 'fin-tab' + (tipo === 'despesa' ? ' active' : '');
+  document.getElementById('tab-receita').className = 'fin-tab' + (tipo === 'receita' ? ' active' : '');
+}
+function salvarTransacao() {
+  const valor = +document.getElementById('fin-valor').value;
+  if (!valor) { toast('Informe o valor'); return; }
+  state.transacoes.push({
+    id: uid(), tipo: document.getElementById('fin-tipo').value,
+    valor, data: document.getElementById('fin-data').value,
+    cat: document.getElementById('fin-cat').value,
+    desc: document.getElementById('fin-desc').value,
+  });
+  salvar(); closeModal('modal-transacao'); renderFinanceiro(); toast('Transação salva!');
+}
+function excluirTrans(id) {
+  if (!confirm('Excluir transação?')) return;
+  state.transacoes = state.transacoes.filter(x => x.id !== id);
+  salvar(); renderFinanceiro();
+}
+function renderFinanceiro() {
+  const mes = new Date().getMonth(); const ano = new Date().getFullYear();
+  const doMes = state.transacoes.filter(t => {
+    const d = new Date(t.data + 'T00:00:00');
+    return d.getMonth() === mes && d.getFullYear() === ano;
+  });
+  const receitas = doMes.filter(t => t.tipo === 'receita').reduce((a,t) => a + t.valor, 0);
+  const despesas = doMes.filter(t => t.tipo === 'despesa').reduce((a,t) => a + t.valor, 0);
+  document.getElementById('fin-receitas').textContent = brl(receitas);
+  document.getElementById('fin-despesas').textContent = brl(despesas);
+  document.getElementById('fin-saldo').textContent = brl(receitas - despesas);
+  const list = document.getElementById('trans-list');
+  if (!state.transacoes.length) { list.innerHTML = '<div class="empty"><p>Nenhuma transação.</p></div>'; return; }
+  list.innerHTML = [...state.transacoes].reverse().map(t => `
+    <div class="trans-item">
+      <div class="trans-dot" style="background:${t.tipo === 'receita' ? 'var(--green)' : 'var(--red)'}"></div>
+      <div class="trans-info">
+        <div class="trans-desc">${t.desc || t.cat}</div>
+        <div class="trans-date">${fmtDate(t.data)} · ${t.cat}</div>
+      </div>
+      <div class="trans-val" style="color:${t.tipo === 'receita' ? 'var(--green)' : 'var(--red)'}">
+        ${t.tipo === 'receita' ? '+' : '-'} ${brl(t.valor)}
+      </div>
+      <button class="btn btn-sm" style="background:var(--red-light);color:var(--red);border:none;margin-left:8px" onclick="excluirTrans('${t.id}')">✕</button>
+    </div>`).join('');
+}
+
+// ─── CLIENTES ────────────────────────────────────────────────────
+function salvarCliente() {
+  const nome = document.getElementById('cl-nome').value.trim();
+  if (!nome) { toast('Informe o nome'); return; }
+  state.clientes.push({ id: uid(), nome, zap: document.getElementById('cl-zap').value, end: document.getElementById('cl-end').value, pedidos: 0, gasto: 0 });
+  salvar(); closeModal('modal-cliente'); renderClientes(); toast('Cliente cadastrado!');
+  ['cl-nome','cl-zap','cl-end'].forEach(id => document.getElementById(id).value = '');
+}
+function excluirCliente(id) {
+  if (!confirm('Excluir cliente?')) return;
+  state.clientes = state.clientes.filter(x => x.id !== id);
+  salvar(); renderClientes();
+}
+function renderClientes(filtro='') {
+  const list = document.getElementById('clientes-list');
+  const items = state.clientes.filter(c => !filtro || c.nome.toLowerCase().includes(filtro.toLowerCase()));
+  if (!items.length) {
+    list.innerHTML = `<div class="empty"><p>${filtro ? 'Nenhum encontrado' : 'Nenhum cliente cadastrado'}</p></div>`;
+    return;
+  }
+  list.innerHTML = items.map(c => `
+    <div class="client-card">
+      <div class="client-avatar">${c.nome[0].toUpperCase()}</div>
+      <div style="flex:1">
+        <div style="font-size:15px;font-weight:600">${c.nome}</div>
+        <div style="font-size:12px;color:var(--text2)">${c.zap || '–'}</div>
+        <div style="font-size:11px;color:var(--text3)">📋 ${c.pedidos || 0} pedidos · ${brl(c.gasto || 0)}</div>
+      </div>
+      <div style="display:flex;gap:6px">
+        ${c.zap ? `<a href="${zapLink(c.zap, 'Olá '+c.nome+'! Como posso ajudar?')}" target="_blank" class="btn btn-sm btn-green">💬</a>` : ''}
+        <button class="btn btn-sm" style="background:var(--red-light);color:var(--red);border:1px solid #ffcdd2" onclick="excluirCliente('${c.id}')">🗑️</button>
+      </div>
+    </div>`).join('');
+}
+function filtrarClientes(v) { renderClientes(v); }
+
+// ─── DASHBOARD ───────────────────────────────────────────────────
+function renderDashboard() {
+  const hoje = today();
+  const novas = (state.solicitacoes || []).filter(s => s.status === 'pendente').length;
+  document.getElementById('dash-novas').textContent = novas;
+  document.getElementById('dash-hoje').textContent = state.agendamentos.filter(a => a.data === hoje).length;
+  document.getElementById('dash-pendentes').textContent = state.agendamentos.filter(a => a.status === 'pendente').length;
+  const fatHoje = state.transacoes.filter(t => t.data === hoje && t.tipo === 'receita').reduce((a,t) => a + t.valor, 0);
+  document.getElementById('dash-fat').textContent = brl(fatHoje);
+  // Alertas
+  const alertas = document.getElementById('dash-alertas');
+  if (novas > 0) {
+    alertas.innerHTML = `<div class="novo-alerta" style="cursor:pointer" onclick="openPage('solicita')">
+      <span style="font-size:24px">🔔</span>
+      <div>
+        <div style="font-weight:700;font-size:15px">${novas} nova${novas > 1 ? 's' : ''} solicitação${novas > 1 ? 'ões' : ''} de agendamento!</div>
+        <div style="font-size:13px;opacity:.9">Clique para ver e confirmar no WhatsApp</div>
+      </div>
+      <div style="margin-left:auto;font-size:20px">›</div>
+    </div>`;
+  } else {
+    alertas.innerHTML = '';
+  }
+  // Recentes
+  const agList = document.getElementById('dash-agendamentos-list');
+  const recentes = [...state.agendamentos].sort((a,b) => (b.data+b.hora).localeCompare(a.data+a.hora)).slice(0,5);
+  if (!recentes.length) {
+    agList.innerHTML = `<div class="empty"><p>Nenhum agendamento ainda</p></div>`;
+  } else {
+    agList.innerHTML = recentes.map(a => {
+      const sc = a.status === 'confirmado' ? 'badge-green' : a.status === 'cancelado' ? 'badge-red' : 'badge-yellow';
+      return `<div class="list-item"><div style="flex:1"><strong>${a.cliente}</strong><div style="font-size:12px;color:var(--text2)">${fmtDate(a.data)} às ${a.hora}</div></div><span style="font-size:12px;color:var(--primary);margin-right:8px">${a.servico}</span><span class="badge ${sc}">${a.status}</span></div>`;
+    }).join('');
+  }
+  // Chart
+  const labels = []; const bars = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    const ds = d.toISOString().split('T')[0];
+    const v = state.transacoes.filter(t => t.data === ds && t.tipo === 'receita').reduce((a,t) => a + t.valor, 0);
+    labels.push(['D','S','T','Q','Q','S','S'][d.getDay()]);
+    bars.push(v);
+  }
+  const max = Math.max(...bars, 1);
+  document.getElementById('chart-bars').innerHTML = bars.map(v => `
+    <div class="chart-bar-wrap">
+      <div style="font-size:10px;color:var(--text3);margin-bottom:2px">${v > 0 ? brl(v).replace('R$ ','') : ''}</div>
+      <div class="chart-bar" style="height:${Math.max((v/max)*80,4)}px;background:${v > 0 ? 'var(--primary)' : 'var(--border)'}"></div>
+    </div>`).join('');
+  document.getElementById('chart-labels').innerHTML = labels.map(l => `<div style="font-size:10px;color:var(--text3);flex:1;text-align:center">${l}</div>`).join('');
+}
+
+// ─── CONFIG ──────────────────────────────────────────────────────
+function configTab(el, id) {
+  document.querySelectorAll('.config-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  ['cfg-loja','cfg-zap-msg','cfg-visual','cfg-horarios','cfg-pagamentos'].forEach(i => {
+    const d = document.getElementById(i); if (d) d.style.display = i === id ? 'block' : 'none';
+  });
+  if (id === 'cfg-horarios') renderHorarios();
+  if (id === 'cfg-pagamentos') renderPagamentos();
+}
+function salvarConfig() {
+  state.config.nome = document.getElementById('cfg-nome').value;
+  state.config.link = document.getElementById('cfg-link').value;
+  state.config.zap = document.getElementById('cfg-zap').value;
+  state.config.desc = document.getElementById('cfg-desc').value;
+  salvar(); atualizarConfig(); toast('Configurações salvas!');
+}
+function salvarMensagens() {
+  state.config.msgConfirmacao = document.getElementById('msg-confirmacao').value;
+  state.config.msgCancelamento = document.getElementById('msg-cancelamento').value;
+  state.config.msgNotificacao = document.getElementById('msg-notificacao').value;
+  salvar(); toast('Mensagens salvas!');
+}
+function atualizarConfig() {
+  const nome = document.getElementById('cfg-nome').value || state.config.nome;
+  document.getElementById('sb-name').textContent = nome;
+  document.getElementById('sb-avatar').textContent = nome[0].toUpperCase();
+  const link = document.getElementById('cfg-link').value || state.config.link;
+  document.getElementById('sb-url').textContent = link + '.app';
+  document.getElementById('topbar-link-text').textContent = link + '.app/agendar/' + link;
+  // atualiza tela pública
+  document.getElementById('pub-nome-txt').textContent = nome;
+  document.getElementById('pub-logo-txt').textContent = nome[0].toUpperCase();
+  // atualiza página Meu App se estiver visível
+  const pgMeuApp = document.getElementById('page-meuapp');
+  if (pgMeuApp && pgMeuApp.classList.contains('active')) renderMeuApp();
+}
+function setColor(c, el) {
+  document.querySelectorAll('.color-opt').forEach(x => x.classList.remove('selected'));
+  el.classList.add('selected');
+  document.documentElement.style.setProperty('--primary', c);
+  state.config.cor = c; salvar(); toast('Cor aplicada!');
+}
+const DIAS_PT = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+function renderHorarios() {
+  if (!state.config.horarios) {
+    state.config.horarios = DIAS_PT.map((d,i) => ({ dia: d, ativo: i >= 1 && i <= 6, inicio: '08:00', fim: '18:00' }));
+  }
+  document.getElementById('horarios-grid').innerHTML = state.config.horarios.map((h,i) => `
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)">
+      <label class="toggle"><input type="checkbox" ${h.ativo ? 'checked' : ''} onchange="toggleDia(${i})"><span class="toggle-slider"></span></label>
+      <span style="min-width:80px;font-size:14px">${h.dia}</span>
+      <input type="time" class="form-input" style="width:110px" value="${h.inicio}" onchange="state.config.horarios[${i}].inicio=this.value;salvar()">
+      <span style="color:var(--text3)">até</span>
+      <input type="time" class="form-input" style="width:110px" value="${h.fim}" onchange="state.config.horarios[${i}].fim=this.value;salvar()">
+    </div>`).join('');
+}
+function toggleDia(i) { state.config.horarios[i].ativo = !state.config.horarios[i].ativo; salvar(); renderHorarios(); }
+const PGTOS = ['Dinheiro','PIX','Cartão de Débito','Cartão de Crédito','Transferência Bancária'];
+function renderPagamentos() {
+  if (!state.config.pagamentos) state.config.pagamentos = ['Dinheiro','PIX'];
+  document.getElementById('pagamentos-list').innerHTML = PGTOS.map(p => `
+    <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px">
+      <input type="checkbox" ${state.config.pagamentos.includes(p) ? 'checked' : ''} onchange="togglePgto('${p}',this.checked)"> ${p}
+    </label>`).join('');
+}
+function togglePgto(p, v) {
+  if (!state.config.pagamentos) state.config.pagamentos = [];
+  if (v) state.config.pagamentos.push(p); else state.config.pagamentos = state.config.pagamentos.filter(x => x !== p);
+  salvar();
+}
+
+// ─── LINK / COMPARTILHAR ─────────────────────────────────────────
+function copiarLink() {
+  const txt = document.getElementById('topbar-link-text').textContent;
+  navigator.clipboard.writeText('https://' + txt).catch(() => {});
+  toast('Link copiado!');
+}
+function compartilharZap() {
+  const link = 'https://' + document.getElementById('topbar-link-text').textContent;
+  const nome = state.config.nome || 'Padrão Elétrica';
+  const msg = `Olá! Agende seu serviço com ${nome} pelo link:\n${link}\n\nRápido, fácil e direto! 👆`;
+  window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+}
+
+// ─── APP DO CLIENTE (link real + QR Code) ────────────────────────
+// Resolve a URL do app-cliente.html relativa ao arquivo do admin, preservando a query de link.
+function urlAppCliente() {
+  const base = window.location.href.split('#')[0].split('?')[0];
+  const dir = base.substring(0, base.lastIndexOf('/') + 1);
+  const link = state.config.link || 'padraoeletrica';
+  return dir + 'app-cliente.html?loja=' + encodeURIComponent(link);
+}
+function abrirAppCliente() {
+  window.open(urlAppCliente(), '_blank');
+}
+function copiarLinkApp() {
+  navigator.clipboard.writeText(urlAppCliente()).catch(() => {});
+  toast('Link copiado!');
+}
+function compartilharAppZap() {
+  const nome = state.config.nome || 'Padrão Elétrica';
+  const msg = `Olá! Agende seu serviço com ${nome} pelo link abaixo:\n${urlAppCliente()}\n\nRápido, fácil e direto! 👆`;
+  window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+}
+function renderMeuApp() {
+  const url = urlAppCliente();
+  document.getElementById('meuapp-link-text').textContent = url;
+  const box = document.getElementById('meuapp-qrcode');
+  box.innerHTML = '';
+  try {
+    const qr = qrcode(0, 'M');
+    qr.addData(url);
+    qr.make();
+    box.innerHTML = qr.createSvgTag({ cellSize: 6, margin: 8, scalable: true });
+    const svg = box.querySelector('svg');
+    if (svg) { svg.style.width = '220px'; svg.style.height = '220px'; svg.style.borderRadius = '12px'; svg.style.border = '1px solid var(--border)'; }
+  } catch(e) {
+    box.innerHTML = '<p style="color:var(--text3);font-size:12px">Não foi possível gerar o QR Code.</p>';
+  }
+}
+
+// ─── TELA PÚBLICA DO CLIENTE ─────────────────────────────────────
+function abrirTelaPublica() {
+  document.getElementById('tela-publica').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  // atualizar infos
+  document.getElementById('pub-nome-txt').textContent = state.config.nome || 'Padrão Elétrica';
+  document.getElementById('pub-logo-txt').textContent = (state.config.nome || 'J')[0].toUpperCase();
+  document.getElementById('pub-sub-txt').textContent = state.config.desc || 'Agende seu serviço com facilidade';
+  renderTelaPublica('inicio');
+}
+function fecharPublica() {
+  document.getElementById('tela-publica').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+// estado temporário do agendamento do cliente
+let pubAg = {};
+
+function renderTelaPublica(etapa) {
+  const body = document.getElementById('pub-body');
+  const servAtivos = state.servicos.filter(s => s.status === 'ativo');
+  const profsAtivos = state.profissionais.filter(p => p.ativo);
+
+  if (etapa === 'inicio') {
+    pubAg = {};
+    const pgtos = (state.config.pagamentos || ['Dinheiro','PIX']).join(' · ');
+    body.innerHTML = `
+      <div class="pub-step">
+        <div class="pub-step-title">📋 Selecione o Serviço</div>
+        ${servAtivos.length === 0 ? '<p style="color:var(--text3);font-size:14px">Nenhum serviço disponível no momento.</p>' :
+          servAtivos.map(s => `
+            <div class="srv-option" onclick="pubSelecionarServico('${s.id}')">
+              <div class="srv-option-icon">${s.icone}</div>
+              <div>
+                <div class="srv-option-name">${s.nome}</div>
+                <div class="srv-option-info">${s.desc || ''} · ${brl(s.preco)} · ${s.duracao} min</div>
+              </div>
+            </div>`).join('')
+        }
+      </div>
+      <div style="text-align:center;font-size:12px;color:var(--text3);margin-top:8px">💳 Pagamentos: ${pgtos}</div>`;
+  }
+
+  else if (etapa === 'profissional') {
+    const srv = state.servicos.find(s => s.id === pubAg.servicoId);
+    body.innerHTML = `
+      <div class="pub-step" style="background:var(--primary-light);border-color:#90CAF9">
+        <div style="font-size:13px;color:var(--primary);font-weight:600">✅ ${srv ? srv.icone + ' ' + srv.nome : ''}</div>
+      </div>
+      <div class="pub-step">
+        <div class="pub-step-title">👤 Escolha o Profissional</div>
+        <div class="prof-option ${profsAtivos.length === 0 ? '' : ''}" onclick="pubSelecionarProf('')" style="border:2px solid var(--border);border-radius:10px;padding:12px;cursor:pointer;margin-bottom:8px;display:flex;align-items:center;gap:10px">
+          <div class="client-avatar" style="width:36px;height:36px;font-size:16px;background:var(--bg);color:var(--text3)">?</div>
+          <div><div style="font-size:14px;font-weight:600">Sem preferência</div><div style="font-size:12px;color:var(--text2)">Qualquer profissional disponível</div></div>
+        </div>
+        ${profsAtivos.map(p => `
+          <div class="prof-option" onclick="pubSelecionarProf('${p.nome}')">
+            <div class="client-avatar" style="width:36px;height:36px;font-size:14px">${p.nome[0].toUpperCase()}</div>
+            <div><div style="font-size:14px;font-weight:600">${p.nome}</div><div style="font-size:12px;color:var(--text2)">${p.esp || ''}</div></div>
+          </div>`).join('')}
+      </div>`;
+  }
+
+  else if (etapa === 'data') {
+    const srv = state.servicos.find(s => s.id === pubAg.servicoId);
+    // gerar próximos 14 dias disponíveis
+    const horarios = state.config.horarios || DIAS_PT.map((d,i) => ({ dia: d, ativo: i >= 1 && i <= 6, inicio: '08:00', fim: '18:00' }));
+    let diasHTML = '';
+    for (let di = 0; di < 14; di++) {
+      const d = new Date(); d.setDate(d.getDate() + di);
+      const dow = d.getDay();
+      const h = horarios[dow];
+      if (!h || !h.ativo) continue;
+      const ds = d.toISOString().split('T')[0];
+      const dname = DIAS_PT[dow];
+      diasHTML += `<div onclick="pubSelecionarData('${ds}','${h.inicio}','${h.fim}')" style="border:2px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:border-color .15s" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--border)'">
+        <div>
+          <div style="font-size:14px;font-weight:600">${dname}, ${d.getDate()}/${d.getMonth()+1}</div>
+          <div style="font-size:12px;color:var(--text2)">${h.inicio} às ${h.fim}</div>
+        </div>
+        <span style="font-size:18px;color:var(--text3)">›</span>
+      </div>`;
+    }
+    body.innerHTML = `
+      <div class="pub-step" style="background:var(--primary-light);border-color:#90CAF9">
+        <div style="font-size:13px;color:var(--primary);font-weight:600">✅ ${srv ? srv.icone + ' ' + srv.nome : ''} ${pubAg.profissional ? '· 👤 ' + pubAg.profissional : ''}</div>
+      </div>
+      <div class="pub-step">
+        <div class="pub-step-title">📅 Escolha a Data</div>
+        ${diasHTML || '<p style="color:var(--text3);font-size:14px">Nenhum dia disponível configurado. Configure os horários nas configurações.</p>'}
+      </div>`;
+  }
+
+  else if (etapa === 'hora') {
+    // gerar horários disponíveis no intervalo
+    const inicio = pubAg.hrInicio || '08:00';
+    const fim = pubAg.hrFim || '18:00';
+    const srv = state.servicos.find(s => s.id === pubAg.servicoId);
+    const duracao = srv ? srv.duracao : 60;
+    const horasOcupadas = state.agendamentos.filter(a => a.data === pubAg.data).map(a => a.hora);
+    // gerar slots
+    let slots = [];
+    let [h, m] = inicio.split(':').map(Number);
+    const [hf, mf] = fim.split(':').map(Number);
+    while (h * 60 + m + duracao <= hf * 60 + mf) {
+      const slot = String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
+      if (!horasOcupadas.includes(slot)) slots.push(slot);
+      m += 30;
+      if (m >= 60) { m -= 60; h++; }
+    }
+    body.innerHTML = `
+      <div class="pub-step" style="background:var(--primary-light);border-color:#90CAF9">
+        <div style="font-size:13px;color:var(--primary);font-weight:600">✅ ${srv ? srv.icone + ' ' + srv.nome : ''} · 📅 ${fmtDate(pubAg.data)}</div>
+      </div>
+      <div class="pub-step">
+        <div class="pub-step-title">🕐 Escolha o Horário</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+          ${slots.length === 0 ? '<p style="grid-column:1/-1;color:var(--text3);font-size:14px">Nenhum horário disponível neste dia.</p>' :
+            slots.map(s => `<div onclick="pubSelecionarHora('${s}')" style="border:2px solid var(--border);border-radius:10px;padding:12px;text-align:center;cursor:pointer;font-weight:700;font-size:15px;color:var(--primary);transition:all .15s" onmouseover="this.style.background='var(--primary-light)';this.style.borderColor='var(--primary)'" onmouseout="this.style.background='';this.style.borderColor='var(--border)'">${s}</div>`).join('')}
+        </div>
+      </div>`;
+  }
+
+  else if (etapa === 'dados') {
+    const srv = state.servicos.find(s => s.id === pubAg.servicoId);
+    body.innerHTML = `
+      <div class="pub-step" style="background:var(--primary-light);border-color:#90CAF9">
+        <div style="font-size:13px;color:var(--primary);font-weight:600">✅ ${srv ? srv.icone + ' ' + srv.nome : ''} · 📅 ${fmtDate(pubAg.data)} · 🕐 ${pubAg.hora}</div>
+      </div>
+      <div class="pub-step">
+        <div class="pub-step-title">👤 Seus Dados</div>
+        <div class="form-group"><label class="form-label">Seu nome completo *</label><input class="form-input" id="pub-nome" placeholder="Ex: Maria da Silva"></div>
+        <div class="form-group"><label class="form-label">Seu WhatsApp (com DDD) *</label><input class="form-input" id="pub-zap" type="tel" placeholder="84900000000"></div>
+        <div class="form-group"><label class="form-label">Observações (opcional)</label><input class="form-input" id="pub-obs" placeholder="Endereço, detalhes do serviço..."></div>
+        <button class="pub-btn" onclick="pubEnviar()">✅ Solicitar Agendamento</button>
+        <p style="font-size:11px;color:var(--text3);text-align:center;margin-top:8px">Após enviar, você receberá confirmação via WhatsApp</p>
+      </div>`;
+  }
+
+  else if (etapa === 'sucesso') {
+    const srv = state.servicos.find(s => s.id === pubAg.servicoId);
+    body.innerHTML = `
+      <div class="pub-success">
+        <div class="pub-success-icon">🎉</div>
+        <h2 style="font-size:22px;font-weight:700;margin-bottom:8px">Solicitação Enviada!</h2>
+        <p style="color:var(--text2);font-size:14px;margin-bottom:20px">Aguarde a confirmação por WhatsApp. Em breve entraremos em contato!</p>
+        <div style="background:var(--primary-light);border-radius:10px;padding:16px;text-align:left;margin-bottom:20px">
+          <div style="font-size:13px;font-weight:700;color:var(--primary);margin-bottom:8px">📋 Resumo do pedido</div>
+          <div style="font-size:13px;color:var(--text)">📌 ${srv ? srv.icone + ' ' + srv.nome : ''}</div>
+          <div style="font-size:13px;color:var(--text)">📅 ${fmtDate(pubAg.data)} às ${pubAg.hora}</div>
+          ${pubAg.profissional ? `<div style="font-size:13px;color:var(--text)">👤 ${pubAg.profissional}</div>` : ''}
+          <div style="font-size:13px;color:var(--text)">👤 ${pubAg.clienteNome}</div>
+        </div>
+        <button class="pub-btn pub-btn-zap" onclick="pubAbrirZapPessoal()">💬 Entrar em contato no WhatsApp</button>
+        <br><br>
+        <button class="pub-btn" style="background:var(--text2)" onclick="renderTelaPublica('inicio')">← Fazer outro agendamento</button>
+      </div>`;
+  }
+}
+
+function pubSelecionarServico(id) {
+  pubAg.servicoId = id;
+  const srv = state.servicos.find(s => s.id === id);
+  pubAg.servico = srv ? srv.nome : '';
+  pubAg.servicoIcone = srv ? srv.icone : '';
+  pubAg.valor = srv ? srv.preco : 0;
+  if (state.profissionais.filter(p => p.ativo).length > 0) {
+    renderTelaPublica('profissional');
+  } else {
+    pubAg.profissional = '';
+    renderTelaPublica('data');
+  }
+}
+function pubSelecionarProf(nome) {
+  pubAg.profissional = nome;
+  renderTelaPublica('data');
+}
+function pubSelecionarData(ds, hrI, hrF) {
+  pubAg.data = ds;
+  pubAg.hrInicio = hrI;
+  pubAg.hrFim = hrF;
+  renderTelaPublica('hora');
+}
+function pubSelecionarHora(h) {
+  pubAg.hora = h;
+  renderTelaPublica('dados');
+}
+function pubEnviar() {
+  const nome = document.getElementById('pub-nome').value.trim();
+  const zap = document.getElementById('pub-zap').value.trim();
+  const obs = document.getElementById('pub-obs').value.trim();
+  if (!nome || !zap) { alert('Preencha seu nome e WhatsApp!'); return; }
+  pubAg.clienteNome = nome;
+  pubAg.clienteZap = zap;
+  pubAg.obs = obs;
+
+  // Salvar solicitação
+  const sol = {
+    id: uid(),
+    ts: Date.now(),
+    cliente: nome,
+    zap,
+    servico: pubAg.servico,
+    icone: pubAg.servicoIcone,
+    data: pubAg.data,
+    hora: pubAg.hora,
+    profissional: pubAg.profissional,
+    obs,
+    valor: pubAg.valor,
+    status: 'pendente',
+  };
+  if (!state.solicitacoes) state.solicitacoes = [];
+  state.solicitacoes.push(sol);
+  salvar();
+  atualizarBadge();
+
+  renderTelaPublica('sucesso');
+
+  // Abrir WhatsApp do ADMIN com notificação
+  if (state.config.zap) {
+    const template = state.config.msgNotificacao || '🔔 NOVO AGENDAMENTO!\n\n👤 Cliente: {nome}\n📞 WhatsApp: {zap}\n📋 Serviço: {servico}\n📅 Data: {data} às {hora}\n💬 Obs: {obs}\n\nAcesse o app para confirmar.';
+    const msg = fmtMsg(template, { nome, zap, servico: pubAg.servico, data: fmtDate(pubAg.data), hora: pubAg.hora, obs: obs || '–' });
+    setTimeout(() => window.open(zapLink(state.config.zap, msg), '_blank'), 500);
+  }
+}
+function pubAbrirZapPessoal() {
+  if (!state.config.zap) { alert('Configure seu WhatsApp nas Configurações primeiro!'); return; }
+  const msg = `Olá! Acabei de solicitar um agendamento pelo app. Nome: ${pubAg.clienteNome}, Serviço: ${pubAg.servico}, Data: ${fmtDate(pubAg.data)} às ${pubAg.hora}.`;
+  window.open(zapLink(state.config.zap, msg), '_blank');
+}
+
+// ─── INIT ────────────────────────────────────────────────────────
+(async function initAdmin() {
+  await carregar();
+  // Inicializa o rastreio de exclusões com o que veio do banco
+  _ultimosIdsSolicitacoes = new Set(state.solicitacoes.map(s => s.id));
+  _ultimosIdsAgendamentos = new Set(state.agendamentos.map(a => a.id));
+
+  // Preencher forms de config
+  document.getElementById('cfg-nome').value = state.config.nome;
+  document.getElementById('cfg-link').value = state.config.link;
+  document.getElementById('cfg-zap').value = state.config.zap || '';
+  document.getElementById('cfg-desc').value = state.config.desc || '';
+  if (state.config.msgConfirmacao) document.getElementById('msg-confirmacao').value = state.config.msgConfirmacao;
+  if (state.config.msgCancelamento) document.getElementById('msg-cancelamento').value = state.config.msgCancelamento;
+  if (state.config.msgNotificacao) document.getElementById('msg-notificacao').value = state.config.msgNotificacao;
+  if (state.config.cor) document.documentElement.style.setProperty('--primary', state.config.cor);
+  if (!state.solicitacoes) state.solicitacoes = [];
+  atualizarConfig();
+  atualizarBadge();
+  renderDashboard();
+  renderClientes();
+
+  // ── Tempo real: pedido novo do app cliente aparece sem precisar de F5 ──
+  sb.channel('admin-sync')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'solicitacoes' }, async () => {
+      await carregar();
+      _ultimosIdsSolicitacoes = new Set(state.solicitacoes.map(s => s.id));
+      atualizarBadge();
+      if (document.getElementById('page-solicita').classList.contains('active')) renderSolicita();
+      renderDashboard();
+    })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'agendamentos' }, async () => {
+      await carregar();
+      _ultimosIdsAgendamentos = new Set(state.agendamentos.map(a => a.id));
+      if (document.getElementById('page-agenda').classList.contains('active')) renderAgenda();
+      renderDashboard();
+    })
+    .subscribe();
+})();
+</script>
+</body>
+</html>
