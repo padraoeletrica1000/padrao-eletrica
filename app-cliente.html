@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
 <title>Padrão Elétrica – Agendar</title>
 <meta name="theme-color" content="#1565C0">
+<link rel="manifest" href="manifest-cliente.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Padrão Elétrica">
 <style>
 :root {
   --primary: #1565C0;
@@ -193,6 +199,11 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--
 
 <!-- CONTEÚDO DINÂMICO -->
 <div id="app"></div>
+
+<!-- BOTÃO FLUTUANTE: instalar app na tela inicial (aparece só quando disponível) -->
+<button id="btn-instalar-app" onclick="instalarApp()" style="display:none;position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:50;align-items:center;gap:8px;background:var(--primary);color:#fff;border:none;border-radius:999px;padding:11px 18px;font-size:13.5px;font-weight:600;box-shadow:0 6px 18px rgba(0,0,0,.18);cursor:pointer">
+  ⬇️ Instalar app
+</button>
 
 <!-- MODAL LOGIN -->
 <div class="modal-overlay" id="modal-login">
@@ -899,6 +910,34 @@ document.querySelectorAll('.modal-overlay').forEach(m => {
   atualizarHeader();
   render();
 })();
+
+// ─── PWA: instalar como app na tela inicial ───────────────────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
+let promptInstalacao = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  promptInstalacao = e;
+  const btn = document.getElementById('btn-instalar-app');
+  if (btn) btn.style.display = 'flex';
+});
+function instalarApp() {
+  if (!promptInstalacao) return;
+  promptInstalacao.prompt();
+  promptInstalacao.userChoice.finally(() => {
+    promptInstalacao = null;
+    const btn = document.getElementById('btn-instalar-app');
+    if (btn) btn.style.display = 'none';
+  });
+}
+window.addEventListener('appinstalled', () => {
+  const btn = document.getElementById('btn-instalar-app');
+  if (btn) btn.style.display = 'none';
+  toast('App instalado! 🎉');
+});
 </script>
 </body>
 </html>
