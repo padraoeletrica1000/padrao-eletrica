@@ -2,7 +2,7 @@
 // SERVICE WORKER – Padrão Elétrica
 // Versão: mude este número toda vez que subir arquivos novos!
 // ============================================================
-const CACHE_VERSION = 'padrao-eletrica-v2';
+const CACHE_VERSION = 'padrao-eletrica-v3';
 
 const ARQUIVOS_CACHE = [
   './',
