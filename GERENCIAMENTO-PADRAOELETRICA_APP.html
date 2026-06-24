@@ -11,6 +11,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="PE Admin">
+  <script>
+if('serviceWorker'in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js');})}
+var _dp;window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();_dp=e;setTimeout(function(){if(_dp){_dp.prompt();_dp.userChoice.then(function(){_dp=null;})}},2000);});
+</script>
 <style>
 :root {
   --primary: #1565C0;
