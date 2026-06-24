@@ -1,6 +1,6 @@
 {
   "name": "Padrão Elétrica - Gerenciamento",
-  "short_name": "PE Admin",
+ "short_name": "Padrão Elétrica",
   "description": "Painel de gerenciamento da Padrão Elétrica",
   "start_url": "./GERENCIAMENTO-PADRAOELETRICA_APP.html",
   "scope": "./",
