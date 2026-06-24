@@ -1,0 +1,29 @@
+{
+  "name": "Padrão Elétrica – Gerenciamento",
+  "short_name": "PE Gerenciamento",
+  "description": "Painel de gerenciamento de serviços elétricos",
+  "start_url": "https://padraoeletrica1000.github.io/padrao-eletrica/GERENCIAMENTO-PADRAOELETRICA_APP.html",
+  "scope": "https://padraoeletrica1000.github.io/padrao-eletrica/",
+  "display": "standalone",
+  "background_color": "#F4F6F9",
+  "theme_color": "#1565C0",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
