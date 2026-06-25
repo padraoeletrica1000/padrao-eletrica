@@ -589,8 +589,20 @@ function renderHora(app) {
   let slots = [];
   let [h, m] = inicio.split(':').map(Number);
   const [hf, mf] = fim.split(':').map(Number);
+const agora = new Date();
+  const dataHoje = agora.toISOString().split('T')[0];
+  const ehHoje = itemAtual.data === dataHoje;
+
   while (h*60+m+duracao <= hf*60+mf) {
     const slot = String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
+    if (ehHoje) {
+      const minutosSlot = h * 60 + m;
+      const minutosAgora = agora.getHours() * 60 + agora.getMinutes() + 30;
+      if (minutosSlot <= minutosAgora) {
+        m += 30; if (m >= 60) { m -= 60; h++; }
+        continue;
+      }
+    }
     if (!ocupadas.includes(slot)) slots.push(slot);
     m += 30; if (m >= 60) { m -= 60; h++; }
   }
