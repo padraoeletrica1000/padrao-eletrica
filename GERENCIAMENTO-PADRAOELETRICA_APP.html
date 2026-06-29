@@ -201,6 +201,25 @@ nav{flex:1;padding:10px 0;overflow-y:auto}
 .color-opt.selected{border-color:var(--text)}
 .color-opt:hover{border-color:var(--text3)}
 
+/* DASHBOARD KPI CARDS */
+.dash-kpi-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px 18px;display:flex;flex-direction:column;gap:4px;transition:box-shadow .2s}
+.dash-kpi-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.08)}
+.dash-kpi-icon{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:6px}
+.dash-kpi-label{font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+.dash-kpi-value{font-size:26px;font-weight:800;color:var(--text);line-height:1.1}
+.dash-kpi-sub{font-size:11px;color:var(--text3);margin-top:2px}
+
+/* RANK */
+.rank-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.rank-item:last-child{border-bottom:none}
+.rank-pos{width:24px;height:24px;border-radius:50%;background:var(--primary-light);color:var(--primary);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rank-pos.gold{background:#FFF8E1;color:#F9A825}
+.rank-pos.silver{background:#F5F5F5;color:#757575}
+.rank-pos.bronze{background:#FBE9E7;color:#BF360C}
+.rank-bar-wrap{flex:1}
+.rank-bar-bg{background:var(--bg);border-radius:4px;height:6px;margin-top:4px;overflow:hidden}
+.rank-bar-fill{height:100%;border-radius:4px;background:var(--primary);transition:width .6s}
+
 /* EMPTY */
 .empty{text-align:center;padding:40px 20px;color:var(--text3)}
 .empty svg{width:48px;height:48px;fill:var(--border);margin-bottom:12px}
@@ -258,6 +277,8 @@ nav{flex:1;padding:10px 0;overflow-y:auto}
   .topbar{padding:0 16px 0 52px}
   .grid2,.grid3,.grid4{grid-template-columns:1fr}
   .form-row{grid-template-columns:1fr}
+  #dash-cards-grid{grid-template-columns:1fr 1fr !important}
+  #dash-cards-grid .dash-kpi-card:last-child{grid-column:1/-1}
 }
 </style>
 <script>
@@ -384,7 +405,10 @@ function instalarAdmin() {
   <!-- ══ DASHBOARD ══ -->
   <div class="page active" id="page-dashboard">
     <div class="topbar">
-      <div><div class="topbar-title">Dashboard</div></div>
+      <div>
+        <div class="topbar-title">Dashboard</div>
+        <div class="topbar-sub" id="dash-date-label"></div>
+      </div>
       <div style="display:flex;align-items:center;gap:8px">
         <div class="topbar-link-box">
           <svg viewBox="0 0 24 24" fill="var(--primary)" style="width:14px;height:14px;flex-shrink:0"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
@@ -397,46 +421,113 @@ function instalarAdmin() {
           <div class="icon-btn" title="Abrir App do Cliente" onclick="abrirAppCliente()">
             <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
           </div>
-          <div class="icon-btn" title="Mostrar QR Code" onclick="openPage('meuapp')">
-            <svg viewBox="0 0 24 24"><path d="M3 11h8V3H3v8zm2-6h4v4H5V5zM3 21h8v-8H3v8zm2-6h4v4H5v-4zM13 3v8h8V3h-8zm6 6h-4V5h4v4zM13 13h2v2h-2zM15 15h2v2h-2zM13 17h2v2h-2zM17 13h2v2h-2zM19 15h-2v2h2v2h-4v-6h4z"/></svg>
-          </div>
           <div class="icon-btn" title="Compartilhar no WhatsApp" onclick="compartilharZap()">
             <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
           </div>
         </div>
       </div>
     </div>
+
     <div style="padding:24px 28px">
+      <!-- ALERTA -->
       <div id="dash-alertas"></div>
-      <div class="grid4" style="margin-bottom:16px">
-        <div class="stat-card">
-          <div class="stat-icon" style="background:#FFF3E0">🔔</div>
-          <div><div class="stat-label">Solicitações Novas</div><div class="stat-value" id="dash-novas" style="color:var(--accent)">0</div></div>
+
+      <!-- 5 CARDS DE MÉTRICAS -->
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:20px" id="dash-cards-grid">
+        <!-- Card 1: Solicitação de Serviços -->
+        <div class="dash-kpi-card" style="border-top:3px solid #FF6F00">
+          <div class="dash-kpi-icon" style="background:#FFF3E0;color:#FF6F00">🔔</div>
+          <div class="dash-kpi-label">Solicitação de Serviços</div>
+          <div class="dash-kpi-value" id="dash-novas" style="color:#FF6F00">0</div>
+          <div class="dash-kpi-sub">aguardando confirmação</div>
         </div>
-        <div class="stat-card">
-          <div class="stat-icon" style="background:#E3F2FD">📅</div>
-          <div><div class="stat-label">Agendamentos Hoje</div><div class="stat-value" id="dash-hoje">0</div></div>
+        <!-- Card 2: Serviços Agendados -->
+        <div class="dash-kpi-card" style="border-top:3px solid #1565C0">
+          <div class="dash-kpi-icon" style="background:#E3F2FD;color:#1565C0">📅</div>
+          <div class="dash-kpi-label">Serviços Agendados</div>
+          <div class="dash-kpi-value" id="dash-hoje">0</div>
+          <div class="dash-kpi-sub" id="dash-hoje-sub">confirmados</div>
         </div>
-        <div class="stat-card">
-          <div class="stat-icon" style="background:#FFF3E0">⏳</div>
-          <div><div class="stat-label">Pendentes</div><div class="stat-value" id="dash-pendentes">0</div></div>
+        <!-- Card 3: Serviços Concluídos -->
+        <div class="dash-kpi-card" style="border-top:3px solid #2E7D32">
+          <div class="dash-kpi-icon" style="background:#E8F5E9;color:#2E7D32">✅</div>
+          <div class="dash-kpi-label">Serviços Concluídos</div>
+          <div class="dash-kpi-value" id="dash-concluidos">0</div>
+          <div class="dash-kpi-sub">finalizados</div>
         </div>
-        <div class="stat-card">
-          <div class="stat-icon" style="background:#E8F5E9">💰</div>
-          <div><div class="stat-label">Faturamento Hoje</div><div class="stat-value" id="dash-fat" style="font-size:16px">R$ 0,00</div></div>
+        <!-- Card 4: Serviços Pendentes -->
+        <div class="dash-kpi-card" style="border-top:3px solid #F9A825">
+          <div class="dash-kpi-icon" style="background:#FFFDE7;color:#F57F17">⏳</div>
+          <div class="dash-kpi-label">Serviços Pendentes</div>
+          <div class="dash-kpi-value" id="dash-pendentes" style="color:#F57F17">0</div>
+          <div class="dash-kpi-sub">aguardando execução</div>
+        </div>
+        <!-- Card 5: Faturamento do Mês -->
+        <div class="dash-kpi-card" style="border-top:3px solid #00838F">
+          <div class="dash-kpi-icon" style="background:#E0F7FA;color:#00838F">💰</div>
+          <div class="dash-kpi-label">Faturamento do Mês</div>
+          <div class="dash-kpi-value" id="dash-fat-mes" style="font-size:20px">R$ 0,00</div>
+          <div class="dash-kpi-sub" id="dash-fat-sub">este mês</div>
         </div>
       </div>
-      <div class="card" style="margin-bottom:16px">
-        <div class="section-header">
-          <h3>Agendamentos Recentes</h3>
-          <span style="font-size:12px;color:var(--primary);cursor:pointer" onclick="openPage('agenda')">Ver todos</span>
+
+      <!-- LINHA DE GRÁFICOS -->
+      <div style="display:grid;grid-template-columns:1fr 1.6fr 1fr;gap:16px;margin-bottom:20px">
+
+        <!-- GRÁFICO DE PIZZA: Serviços mais solicitados -->
+        <div class="card" style="display:flex;flex-direction:column">
+          <div class="section-header" style="margin-bottom:12px">
+            <h3>Serviços mais solicitados</h3>
+          </div>
+          <div style="display:flex;justify-content:center;align-items:center;flex:1;min-height:160px">
+            <canvas id="chart-pizza" width="160" height="160"></canvas>
+          </div>
+          <div id="pizza-legenda" style="margin-top:12px;display:flex;flex-direction:column;gap:6px"></div>
         </div>
-        <div id="dash-agendamentos-list"><div class="empty"><p>Nenhum agendamento</p></div></div>
+
+        <!-- GRÁFICO DE COLUNAS VERTICAIS: Clientes que mais Solicitam Serviços -->
+        <div class="card">
+          <div class="section-header" style="margin-bottom:16px">
+            <h3>Clientes que mais Solicitam Serviços</h3>
+          </div>
+          <div style="position:relative;height:180px">
+            <canvas id="chart-barras" style="width:100%;height:100%"></canvas>
+          </div>
+        </div>
+
+        <!-- GRÁFICO DE BARRA HORIZONTAL: Satisfação por Serviços -->
+        <div class="card" style="display:flex;flex-direction:column">
+          <div class="section-header" style="margin-bottom:12px">
+            <h3>Satisfação por Serviços</h3>
+          </div>
+          <div style="position:relative;flex:1;min-height:180px">
+            <canvas id="chart-rosca" style="width:100%;height:100%"></canvas>
+          </div>
+        </div>
       </div>
-      <div class="card">
-        <h3 style="margin-bottom:16px">Receita dos Últimos 7 Dias</h3>
-        <div class="chart-bars" id="chart-bars"></div>
-        <div style="display:flex;justify-content:space-between;margin-top:8px" id="chart-labels"></div>
+
+      <!-- RANKING + RECENTES -->
+      <div style="display:grid;grid-template-columns:1fr 1.5fr;gap:16px">
+
+        <!-- META ATINGIDA EM PORCENTAGEM -->
+        <div class="card">
+          <div class="section-header">
+            <h3>🎯 Meta Atingida</h3>
+            <span style="font-size:11px;color:var(--text3)">serviços concluídos no mês</span>
+          </div>
+          <div id="dash-ranking">
+            <div class="empty"><p>Nenhum dado ainda</p></div>
+          </div>
+        </div>
+
+        <!-- AGENDAMENTOS RECENTES -->
+        <div class="card">
+          <div class="section-header">
+            <h3>Agendamentos Recentes</h3>
+            <span style="font-size:12px;color:var(--primary);cursor:pointer" onclick="openPage('agenda')">Ver todos →</span>
+          </div>
+          <div id="dash-agendamentos-list"><div class="empty"><p>Nenhum agendamento</p></div></div>
+        </div>
       </div>
     </div>
   </div>
@@ -812,6 +903,7 @@ Acesse o app para confirmar ou cancelar.</textarea>
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ─── STATE ───────────────────────────────────────────────────────
@@ -1429,55 +1521,292 @@ function renderClientes(filtro='') {
 function filtrarClientes(v) { renderClientes(v); }
 
 // ─── DASHBOARD ───────────────────────────────────────────────────
+let _chartPizza = null, _chartBarras = null, _chartRosca = null;
+
+// Serviços fixos da empresa para o gráfico de pizza
+const SERVICOS_EMPRESA = [
+  'Montar Móveis',
+  'Serviços de Pedreiro',
+  'Marido de Aluguel',
+  'Instalações e Manutenções Elétricas',
+  'Serviços em Encanações Hidráulicas',
+  'Instalações de Circuitos de Câmeras',
+];
+const PIZZA_COLORS = ['#1565C0','#FF6F00','#2E7D32','#7B1FA2','#00838F','#C62828'];
+
 function renderDashboard() {
   const hoje = today();
-  const novas = (state.solicitacoes || []).filter(s => s.status === 'pendente').length;
-  document.getElementById('dash-novas').textContent = novas;
-  document.getElementById('dash-hoje').textContent = state.agendamentos.filter(a => a.data === hoje).length;
-  document.getElementById('dash-pendentes').textContent = state.agendamentos.filter(a => a.status === 'pendente').length;
-  const fatHoje = state.transacoes.filter(t => t.data === hoje && t.tipo === 'receita').reduce((a,t) => a + t.valor, 0);
-  document.getElementById('dash-fat').textContent = brl(fatHoje);
-  // Alertas
+
+  // ── Data no subtítulo ──
+  const dtLabel = document.getElementById('dash-date-label');
+  if (dtLabel) dtLabel.textContent = new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+
+  // ── Cálculos para cards ──
+  const novas     = (state.solicitacoes || []).filter(s => s.status === 'pendente').length;
+  const agendados = state.agendamentos.filter(a => a.status === 'confirmado').length;
+  const concluidos= state.agendamentos.filter(a => a.status === 'concluido' || a.status === 'confirmado').length;
+  const pendentes = state.agendamentos.filter(a => a.status === 'pendente').length;
+
+  const mes = new Date().getMonth(); const ano = new Date().getFullYear();
+  const fatMes = state.transacoes.filter(t => {
+    const d = new Date(t.data + 'T00:00:00');
+    return t.tipo === 'receita' && d.getMonth() === mes && d.getFullYear() === ano;
+  }).reduce((a,t) => a + t.valor, 0);
+
+  // ── Atualizar 5 cards ──
+  document.getElementById('dash-novas').textContent    = novas;
+  document.getElementById('dash-hoje').textContent     = agendados;
+  document.getElementById('dash-hoje-sub').textContent = 'confirmados';
+  document.getElementById('dash-concluidos').textContent = concluidos;
+  document.getElementById('dash-pendentes').textContent  = pendentes;
+  document.getElementById('dash-fat-mes').textContent  = brl(fatMes);
+  document.getElementById('dash-fat-sub').textContent  = new Date().toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
+
+  // ── Alerta ──
   const alertas = document.getElementById('dash-alertas');
   if (novas > 0) {
-    alertas.innerHTML = `<div class="novo-alerta" style="cursor:pointer" onclick="openPage('solicita')">
+    alertas.innerHTML = `<div class="novo-alerta" style="cursor:pointer;margin-bottom:16px" onclick="openPage('solicita')">
       <span style="font-size:24px">🔔</span>
       <div>
-        <div style="font-weight:700;font-size:15px">${novas} nova${novas > 1 ? 's' : ''} solicitação${novas > 1 ? 'ões' : ''} de agendamento!</div>
+        <div style="font-weight:700;font-size:15px">${novas} nova${novas>1?'s':''} solicitação${novas>1?'ões':''} de agendamento!</div>
         <div style="font-size:13px;opacity:.9">Clique para ver e confirmar no WhatsApp</div>
       </div>
       <div style="margin-left:auto;font-size:20px">›</div>
     </div>`;
-  } else {
-    alertas.innerHTML = '';
-  }
-  // Recentes
+  } else { alertas.innerHTML = ''; }
+
+  // ── Agendamentos Recentes ──
   const agList = document.getElementById('dash-agendamentos-list');
-  const recentes = [...state.agendamentos].sort((a,b) => (b.data+b.hora).localeCompare(a.data+a.hora)).slice(0,5);
+  const recentes = [...state.agendamentos].sort((a,b)=>(b.data+b.hora).localeCompare(a.data+a.hora)).slice(0,6);
   if (!recentes.length) {
     agList.innerHTML = `<div class="empty"><p>Nenhum agendamento ainda</p></div>`;
   } else {
     agList.innerHTML = recentes.map(a => {
-      const sc = a.status === 'confirmado' ? 'badge-green' : a.status === 'cancelado' ? 'badge-red' : 'badge-yellow';
-      return `<div class="list-item"><div style="flex:1"><strong>${a.cliente}</strong><div style="font-size:12px;color:var(--text2)">${fmtDate(a.data)} às ${a.hora}</div></div><span style="font-size:12px;color:var(--primary);margin-right:8px">${a.servico}</span><span class="badge ${sc}">${a.status}</span></div>`;
+      const sc = a.status==='confirmado'?'badge-green':a.status==='cancelado'?'badge-red':'badge-yellow';
+      return `<div class="list-item">
+        <div class="client-avatar" style="width:32px;height:32px;font-size:12px;flex-shrink:0">${(a.cliente||'?')[0].toUpperCase()}</div>
+        <div style="flex:1;min-width:0">
+          <strong style="font-size:13px">${a.cliente}</strong>
+          <div style="font-size:11px;color:var(--text2)">${fmtDate(a.data)} às ${a.hora} · ${a.servico}</div>
+        </div>
+        <span class="badge ${sc}" style="font-size:10px">${a.status}</span>
+      </div>`;
     }).join('');
   }
-  // Chart
-  const labels = []; const bars = [];
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date(); d.setDate(d.getDate() - i);
-    const ds = d.toISOString().split('T')[0];
-    const v = state.transacoes.filter(t => t.data === ds && t.tipo === 'receita').reduce((a,t) => a + t.valor, 0);
-    labels.push(['D','S','T','Q','Q','S','S'][d.getDay()]);
-    bars.push(v);
+
+  // ─────────────────────────────────────────────────────────────────
+  // GRÁFICO 1 — PIZZA: Serviços mais solicitados
+  // ─────────────────────────────────────────────────────────────────
+  const srvCountEmp = {};
+  SERVICOS_EMPRESA.forEach(s => srvCountEmp[s] = 0);
+  state.agendamentos.forEach(a => {
+    if (!a.servico) return;
+    // tenta casar com os serviços fixos (case insensitive parcial)
+    const key = SERVICOS_EMPRESA.find(s => s.toLowerCase().includes(a.servico.toLowerCase()) || a.servico.toLowerCase().includes(s.toLowerCase().split(' ')[0]));
+    if (key) srvCountEmp[key]++;
+    else {
+      // serviço cadastrado no sistema que não está na lista — soma em "Outros"
+      srvCountEmp['Outros'] = (srvCountEmp['Outros'] || 0) + 1;
+    }
+  });
+
+  const totalAgsEmp = Object.values(srvCountEmp).reduce((a,b)=>a+b,0);
+  const pizzaData = SERVICOS_EMPRESA.map(s => srvCountEmp[s] || 0);
+
+  const pizzaCtx = document.getElementById('chart-pizza');
+  if (pizzaCtx) {
+    if (_chartPizza) { _chartPizza.destroy(); _chartPizza = null; }
+    if (totalAgsEmp === 0) {
+      pizzaCtx.parentElement.innerHTML = '<div class="empty" style="padding:20px"><p>Nenhum dado ainda</p></div>';
+      document.getElementById('pizza-legenda').innerHTML = '';
+    } else {
+    _chartPizza = new Chart(pizzaCtx, {
+      type: 'pie',
+      data: {
+        labels: SERVICOS_EMPRESA,
+        datasets: [{ data: pizzaData, backgroundColor: PIZZA_COLORS, borderWidth: 2, borderColor:'#fff' }]
+      },
+      options: {
+        responsive: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw}` } }
+        }
+      }
+    });
+    document.getElementById('pizza-legenda').innerHTML = SERVICOS_EMPRESA.map((s,i) => `
+      <div style="display:flex;align-items:center;gap:7px;font-size:10px">
+        <span style="width:9px;height:9px;border-radius:50%;background:${PIZZA_COLORS[i]};flex-shrink:0;display:inline-block"></span>
+        <span style="flex:1;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${s}">${s}</span>
+        <strong>${pizzaData[i]}</strong>
+      </div>`).join('');
+    } // fim else pizza
   }
-  const max = Math.max(...bars, 1);
-  document.getElementById('chart-bars').innerHTML = bars.map(v => `
-    <div class="chart-bar-wrap">
-      <div style="font-size:10px;color:var(--text3);margin-bottom:2px">${v > 0 ? brl(v).replace('R$ ','') : ''}</div>
-      <div class="chart-bar" style="height:${Math.max((v/max)*80,4)}px;background:${v > 0 ? 'var(--primary)' : 'var(--border)'}"></div>
-    </div>`).join('');
-  document.getElementById('chart-labels').innerHTML = labels.map(l => `<div style="font-size:10px;color:var(--text3);flex:1;text-align:center">${l}</div>`).join('');
+
+  // ─────────────────────────────────────────────────────────────────
+  // GRÁFICO 2 — COLUNAS VERTICAIS: Clientes que mais Solicitam Serviços
+  // Top clientes ordenados por quantidade de serviços solicitados
+  // ─────────────────────────────────────────────────────────────────
+  const clienteSrv = {};
+  state.agendamentos.forEach(a => {
+    if (a.cliente) clienteSrv[a.cliente] = (clienteSrv[a.cliente] || 0) + 1;
+  });
+  // ordem crescente (menor para maior)
+  let clienteEntries = Object.entries(clienteSrv).sort((a,b) => a[1] - b[1]).slice(-8);
+
+  const barCtx = document.getElementById('chart-barras');
+  if (barCtx) {
+    if (_chartBarras) { _chartBarras.destroy(); _chartBarras = null; }
+    if (!clienteEntries.length) {
+      barCtx.parentElement.innerHTML = '<div class="empty" style="padding:20px"><p>Nenhum dado ainda</p></div>';
+    } else
+    _chartBarras = new Chart(barCtx, {
+      type: 'bar',
+      data: {
+        labels: clienteEntries.map(e => e[0].split(' ')[0]),
+        datasets: [{
+          label: 'Serviços',
+          data: clienteEntries.map(e => e[1]),
+          backgroundColor: clienteEntries.map((_,i) => `hsl(${210 + i*15},70%,${50 + i*3}%)`),
+          borderRadius: 6,
+          borderSkipped: false,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: ctx => ` ${clienteEntries[ctx.dataIndex][0]}: ${ctx.raw} serviço(s)` } }
+        },
+        scales: {
+          y: { beginAtZero: true, ticks: { stepSize: 1, font:{size:10} }, grid:{color:'#F0F0F0'} },
+          x: { grid:{ display:false }, ticks:{ font:{size:10} } }
+        }
+      }
+    });
+  }
+
+  // ─────────────────────────────────────────────────────────────────
+  // GRÁFICO 3 — BARRA HORIZONTAL: Satisfação por Serviços
+  // Baseado na taxa de confirmação por tipo de serviço (%)
+  // ─────────────────────────────────────────────────────────────────
+  const srvSat = {}; // { nome: { total, confirmados } }
+  state.agendamentos.forEach(a => {
+    if (!a.servico) return;
+    if (!srvSat[a.servico]) srvSat[a.servico] = { total:0, conf:0 };
+    srvSat[a.servico].total++;
+    if (a.status === 'confirmado' || a.status === 'concluido') srvSat[a.servico].conf++;
+  });
+  let satEntries = Object.entries(srvSat)
+    .map(([n,v]) => [n, v.total > 0 ? Math.round((v.conf/v.total)*100) : 0])
+    .sort((a,b) => a[1] - b[1]); // crescente
+
+  const roscaCtx = document.getElementById('chart-rosca');
+  if (roscaCtx) {
+    if (_chartRosca) { _chartRosca.destroy(); _chartRosca = null; }
+    if (!satEntries.length) {
+      roscaCtx.parentElement.innerHTML = '<div class="empty" style="padding:20px"><p>Nenhum dado ainda</p></div>';
+    } else
+    _chartRosca = new Chart(roscaCtx, {
+      type: 'bar',
+      data: {
+        labels: satEntries.map(e => e[0].length > 18 ? e[0].slice(0,16)+'…' : e[0]),
+        datasets: [{
+          label: 'Satisfação (%)',
+          data: satEntries.map(e => e[1]),
+          backgroundColor: satEntries.map(e => e[1] >= 90 ? '#2E7D32' : e[1] >= 75 ? '#1565C0' : '#FF6F00'),
+          borderRadius: 4,
+          borderSkipped: false,
+        }]
+      },
+      options: {
+        indexAxis: 'y',   // <-- barra HORIZONTAL
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: ctx => ` ${ctx.raw}% de satisfação` } }
+        },
+        scales: {
+          x: {
+            beginAtZero: true, max: 100,
+            ticks: { callback: v => v + '%', font:{size:10} },
+            grid: { color:'#F0F0F0' }
+          },
+          y: { grid:{ display:false }, ticks:{ font:{size:10} } }
+        }
+      }
+    });
+  }
+
+  // ─────────────────────────────────────────────────────────────────
+  // META ATINGIDA — % de serviços concluídos vs meta mensal por serviço
+  // ─────────────────────────────────────────────────────────────────
+  const rankEl = document.getElementById('dash-ranking');
+  const mesAtual = new Date().toISOString().slice(0, 7); // "YYYY-MM"
+
+  // Conta agendamentos concluídos no mês atual por tipo de serviço
+  const concluidosPorSrv = {};
+  state.agendamentos
+    .filter(a => a.data && a.data.startsWith(mesAtual) && a.status === 'concluido')
+    .forEach(a => {
+      if (!a.servico) return;
+      concluidosPorSrv[a.servico] = (concluidosPorSrv[a.servico] || 0) + 1;
+    });
+
+  // Conta total de agendamentos no mês (confirmados + concluídos) por serviço → meta
+  const totalPorSrv = {};
+  state.agendamentos
+    .filter(a => a.data && a.data.startsWith(mesAtual) && (a.status === 'confirmado' || a.status === 'concluido'))
+    .forEach(a => {
+      if (!a.servico) return;
+      totalPorSrv[a.servico] = (totalPorSrv[a.servico] || 0) + 1;
+    });
+
+  // Define meta padrão por serviço: o maior entre 5 ou 2× o total agendado no mês
+  const metaPorSrv = {};
+  const todosServicos = new Set([...Object.keys(concluidosPorSrv), ...Object.keys(totalPorSrv)]);
+  todosServicos.forEach(s => {
+    metaPorSrv[s] = Math.max(5, Math.ceil((totalPorSrv[s] || 0) * 1.5));
+  });
+
+  // Monta lista de serviços cadastrados ativos como base quando não há dados reais
+  const srvCadastrados = state.servicos.filter(s => s.status === 'ativo').slice(0, 6);
+
+  let metaItems = [];
+  if (todosServicos.size > 0) {
+    metaItems = [...todosServicos].map(nome => {
+      const concluidos = concluidosPorSrv[nome] || 0;
+      const meta = metaPorSrv[nome] || 5;
+      const pct = Math.min(100, Math.round((concluidos / meta) * 100));
+      return { nome, concluidos, meta, pct };
+    }).sort((a, b) => b.pct - a.pct);
+  }
+
+  if (!metaItems.length) {
+    rankEl.innerHTML = '<div class="empty"><p>Nenhum serviço concluído este mês</p></div>';
+  } else {
+    rankEl.innerHTML = metaItems.map(item => {
+      const cor = item.pct >= 90 ? '#2E7D32'
+                : item.pct >= 70 ? '#1565C0'
+                : item.pct >= 50 ? '#FF6F00'
+                : '#C62828';
+      const emoji = item.pct >= 90 ? '🏆'
+                  : item.pct >= 70 ? '✅'
+                  : item.pct >= 50 ? '⏳'
+                  : '🔴';
+      return `<div class="rank-item" style="padding:10px 0">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+          <span style="font-size:14px">${emoji}</span>
+          <span style="font-size:13px;font-weight:600;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${item.nome}">${item.nome}</span>
+          <span style="font-size:13px;font-weight:800;color:${cor}">${item.pct}%</span>
+        </div>
+        <div style="background:#F0F0F0;border-radius:6px;height:8px;overflow:hidden">
+          <div style="height:100%;border-radius:6px;background:${cor};width:${item.pct}%;transition:width .6s ease"></div>
+        </div>
+        <div style="font-size:10px;color:var(--text3);margin-top:3px">${item.concluidos} concluídos · meta ${item.meta}</div>
+      </div>`;
+    }).join('');
+  }
 }
 
 // ─── CONFIG ──────────────────────────────────────────────────────
@@ -1892,5 +2221,769 @@ function pubAbrirZapPessoal() {
   gap:8px;
   white-space:nowrap;
 ">⬇️ Instalar app</div>
+
+</html>
+
+<!-- ══════════════════════════════════════════════════
+     PAINEL DE EDIÇÃO VISUAL - Botão flutuante
+══════════════════════════════════════════════════ -->
+
+<style>
+/* ─── BOTÃO EDITOR FLUTUANTE ─── */
+#edit-fab{
+  position:fixed;bottom:24px;left:24px;z-index:8000;
+  background:#1565C0;color:#fff;border:none;border-radius:50px;
+  padding:12px 20px;font-size:14px;font-weight:700;cursor:pointer;
+  box-shadow:0 4px 20px rgba(0,0,0,.35);
+  display:flex;align-items:center;gap:8px;transition:transform .2s,background .2s;
+}
+#edit-fab:hover{transform:scale(1.05);background:#0D47A1}
+
+/* ─── OVERLAY DO PAINEL ─── */
+#edit-overlay{
+  position:fixed;inset:0;z-index:9000;
+  background:rgba(0,0,0,.55);
+  display:none;align-items:center;justify-content:center;padding:16px;
+}
+#edit-overlay.open{display:flex}
+
+/* ─── PAINEL EDITOR ─── */
+#edit-panel{
+  background:#fff;border-radius:16px;width:100%;max-width:760px;
+  max-height:92vh;overflow:hidden;display:flex;flex-direction:column;
+  box-shadow:0 24px 80px rgba(0,0,0,.3);
+}
+.ep-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px 24px;background:#1565C0;color:#fff;flex-shrink:0;
+}
+.ep-header h2{font-size:17px;font-weight:700;margin:0}
+.ep-close{background:rgba(255,255,255,.2);border:none;color:#fff;
+  border-radius:8px;padding:6px 12px;cursor:pointer;font-size:14px;font-weight:600}
+.ep-close:hover{background:rgba(255,255,255,.35)}
+
+/* Tabs do editor */
+.ep-tabs{display:flex;background:#F4F6F9;border-bottom:1px solid #E0E0E0;flex-shrink:0;overflow-x:auto}
+.ep-tab{padding:11px 18px;font-size:13px;font-weight:600;cursor:pointer;
+  color:#616161;border:none;background:transparent;white-space:nowrap;
+  border-bottom:3px solid transparent;transition:color .15s,border-color .15s}
+.ep-tab.active{color:#1565C0;border-bottom-color:#1565C0;background:#fff}
+.ep-tab:hover:not(.active){color:#1565C0}
+
+/* Corpo do editor */
+.ep-body{flex:1;overflow-y:auto;padding:24px}
+.ep-section{display:none}
+.ep-section.active{display:block}
+
+.ep-group{margin-bottom:20px}
+.ep-label{font-size:12px;font-weight:700;color:#616161;text-transform:uppercase;
+  letter-spacing:.5px;margin-bottom:8px;display:block}
+.ep-input{width:100%;padding:10px 12px;border:1px solid #E0E0E0;border-radius:8px;
+  font-size:14px;font-family:inherit;color:#212121;outline:none;transition:border .15s}
+.ep-input:focus{border-color:#1565C0}
+.ep-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.ep-textarea{width:100%;padding:10px 12px;border:1px solid #E0E0E0;border-radius:8px;
+  font-size:13px;font-family:inherit;color:#212121;resize:vertical;
+  min-height:80px;outline:none;transition:border .15s}
+.ep-textarea:focus{border-color:#1565C0}
+
+/* Seletor de cores */
+.ep-colors{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+.ep-color-btn{
+  width:38px;height:38px;border-radius:50%;cursor:pointer;
+  border:3px solid transparent;transition:border-color .15s,transform .15s;
+}
+.ep-color-btn.selected{border-color:#212121;transform:scale(1.15)}
+.ep-color-btn:hover{border-color:#9E9E9E}
+.ep-custom-color{display:flex;align-items:center;gap:8px;margin-top:12px}
+.ep-custom-color input[type=color]{width:40px;height:36px;border:1px solid #E0E0E0;
+  border-radius:8px;padding:2px;cursor:pointer;background:#fff}
+
+/* Upload de logo */
+.ep-logo-area{
+  border:2px dashed #E0E0E0;border-radius:10px;padding:20px;
+  text-align:center;cursor:pointer;transition:border-color .15s,background .15s;
+}
+.ep-logo-area:hover{border-color:#1565C0;background:#E3F2FD}
+.ep-logo-preview{
+  max-width:200px;max-height:80px;object-fit:contain;
+  margin:0 auto 10px;display:block;border-radius:6px;
+}
+
+/* Seção de textos inline */
+.ep-text-edit{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.ep-text-edit input{flex:1;padding:9px 12px;border:1px solid #E0E0E0;
+  border-radius:8px;font-size:13px;font-family:inherit;outline:none}
+.ep-text-edit input:focus{border-color:#1565C0}
+.ep-text-edit label{font-size:12px;color:#9E9E9E;min-width:120px}
+
+/* Botões de ação */
+.ep-actions{padding:16px 24px;border-top:1px solid #E0E0E0;
+  display:flex;gap:10px;justify-content:flex-end;flex-shrink:0;background:#fff}
+.ep-btn{padding:10px 22px;border-radius:8px;font-size:14px;font-weight:700;
+  cursor:pointer;border:none;transition:opacity .15s,transform .1s}
+.ep-btn:hover{opacity:.88;transform:translateY(-1px)}
+.ep-btn-primary{background:#1565C0;color:#fff}
+.ep-btn-outline{background:#fff;color:#212121;border:1px solid #E0E0E0}
+.ep-btn-danger{background:#C62828;color:#fff}
+
+/* Supabase config */
+.ep-code{font-family:monospace;font-size:12px;background:#F4F6F9;
+  padding:10px 12px;border-radius:6px;border:1px solid #E0E0E0;
+  word-break:break-all;color:#0D47A1}
+
+/* Status badge */
+.ep-status{display:inline-flex;align-items:center;gap:6px;font-size:12px;
+  padding:4px 10px;border-radius:20px;font-weight:600}
+.ep-status.ok{background:#E8F5E9;color:#2E7D32}
+.ep-status.warn{background:#FFF3E0;color:#E65100}
+
+/* Ícone de edição nos elementos */
+.edit-hint{
+  position:relative;cursor:pointer;
+}
+.edit-hint::after{
+  content:'✏️';font-size:11px;
+  position:absolute;top:-2px;right:-4px;
+  opacity:0;transition:opacity .2s;
+}
+.edit-hint:hover::after{opacity:1}
+
+/* Exportar / Importar */
+.ep-export-box{
+  background:#F4F6F9;border-radius:8px;padding:16px;
+  font-size:13px;color:#616161;line-height:1.7;
+}
+.ep-export-box code{
+  display:block;background:#fff;border:1px solid #E0E0E0;
+  border-radius:6px;padding:10px 12px;
+  font-family:monospace;font-size:11px;
+  max-height:120px;overflow-y:auto;word-break:break-all;
+  margin-top:8px;color:#333;
+}
+
+/* Tag de seção */
+.ep-section-tag{
+  font-size:11px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.6px;color:#9E9E9E;margin-bottom:14px;
+  padding-bottom:6px;border-bottom:1px solid #F0F0F0;
+}
+
+@media(max-width:600px){
+  .ep-row{grid-template-columns:1fr}
+  #edit-panel{max-height:98vh}
+  .ep-body{padding:16px}
+}
+</style>
+
+<!-- Botão flutuante de edição -->
+<button id="edit-fab" onclick="abrirEditor()" title="Abrir Editor Visual">
+  ⚙️ Editar App
+</button>
+
+<!-- Overlay do Editor -->
+<div id="edit-overlay">
+  <div id="edit-panel">
+
+    <!-- Cabeçalho -->
+    <div class="ep-header">
+      <div>
+        <h2>⚙️ Editor Visual do App</h2>
+        <div style="font-size:12px;opacity:.8;margin-top:2px">Edite tudo sem tocar no código</div>
+      </div>
+      <button class="ep-close" onclick="fecharEditor()">✕ Fechar</button>
+    </div>
+
+    <!-- Abas -->
+    <div class="ep-tabs">
+      <button class="ep-tab active" onclick="epTab(this,'ep-identidade')">🎨 Identidade</button>
+      <button class="ep-tab" onclick="epTab(this,'ep-textos')">✏️ Textos</button>
+      <button class="ep-tab" onclick="epTab(this,'ep-cores')">🖌️ Cores</button>
+      <button class="ep-tab" onclick="epTab(this,'ep-supabase')">🔌 Supabase</button>
+      <button class="ep-tab" onclick="epTab(this,'ep-exportar')">💾 Exportar</button>
+    </div>
+
+    <!-- Corpo -->
+    <div class="ep-body">
+
+      <!-- ── ABA: IDENTIDADE ── -->
+      <div class="ep-section active" id="ep-identidade">
+        <div class="ep-section-tag">Dados da Empresa</div>
+
+        <div class="ep-row">
+          <div class="ep-group">
+            <label class="ep-label">Nome da Empresa</label>
+            <input class="ep-input" id="ep-nome" placeholder="Ex: Padrão Elétrica">
+          </div>
+          <div class="ep-group">
+            <label class="ep-label">Slug do Link (sem espaços)</label>
+            <input class="ep-input" id="ep-link" placeholder="padraoeletrica">
+          </div>
+        </div>
+
+        <div class="ep-group">
+          <label class="ep-label">WhatsApp (com DDD, só números)</label>
+          <input class="ep-input" id="ep-zap" placeholder="84900000000" type="tel">
+        </div>
+
+        <div class="ep-group">
+          <label class="ep-label">Descrição / Slogan</label>
+          <input class="ep-input" id="ep-desc" placeholder="Ex: Instalações elétricas em Apodi-RN">
+        </div>
+
+        <div class="ep-section-tag" style="margin-top:20px">Logo / Imagem da Marca</div>
+
+        <div class="ep-group">
+          <label class="ep-label">Upload de nova logo (PNG, JPG, SVG)</label>
+          <div class="ep-logo-area" onclick="document.getElementById('ep-logo-input').click()">
+            <img id="ep-logo-preview" src="" alt="" style="display:none">
+            <div id="ep-logo-placeholder">
+              <div style="font-size:32px;margin-bottom:8px">🖼️</div>
+              <div style="font-size:14px;font-weight:600;color:#1565C0">Clique para escolher imagem</div>
+              <div style="font-size:12px;color:#9E9E9E;margin-top:4px">PNG, JPG ou SVG · Recomendado: 400×120px</div>
+            </div>
+          </div>
+          <input type="file" id="ep-logo-input" accept="image/*" style="display:none" onchange="epCarregarLogo(this)">
+          <button class="ep-btn ep-btn-danger" style="margin-top:8px;font-size:12px;padding:7px 14px" onclick="epRemoverLogo()">🗑️ Remover logo</button>
+        </div>
+
+        <div class="ep-section-tag" style="margin-top:20px">Título da Página (Browser)</div>
+        <div class="ep-group">
+          <label class="ep-label">Title da aba do navegador</label>
+          <input class="ep-input" id="ep-title" placeholder="Padrão Elétrica – Gerenciamento">
+        </div>
+      </div>
+
+      <!-- ── ABA: TEXTOS ── -->
+      <div class="ep-section" id="ep-textos">
+        <div class="ep-section-tag">Textos da Interface</div>
+
+        <div class="ep-group">
+          <label class="ep-label">Topbar – Título do Dashboard</label>
+          <input class="ep-input" id="ep-txt-dashboard" placeholder="Dashboard">
+        </div>
+
+        <div class="ep-group">
+          <label class="ep-label">Topbar – Sub-título do Dashboard</label>
+          <input class="ep-input" id="ep-txt-date" placeholder="Bem-vindo ao painel">
+        </div>
+
+        <div class="ep-group">
+          <label class="ep-label">Botão "Abrir App do Cliente" (sidebar)</label>
+          <input class="ep-input" id="ep-txt-btn-cliente" placeholder="🔗 Abrir App do Cliente">
+        </div>
+
+        <div class="ep-group">
+          <label class="ep-label">Label – Card KPI "Solicitação de Serviços"</label>
+          <input class="ep-input" id="ep-txt-kpi1" placeholder="Solicitação de Serviços">
+        </div>
+
+        <div class="ep-group">
+          <label class="ep-label">Label – Card KPI "Serviços Agendados"</label>
+          <input class="ep-input" id="ep-txt-kpi2" placeholder="Serviços Agendados">
+        </div>
+
+        <div class="ep-group">
+          <label class="ep-label">Label – Card KPI "Serviços Concluídos"</label>
+          <input class="ep-input" id="ep-txt-kpi3" placeholder="Serviços Concluídos">
+        </div>
+
+        <div class="ep-group">
+          <label class="ep-label">Label – Card KPI "Serviços Pendentes"</label>
+          <input class="ep-input" id="ep-txt-kpi4" placeholder="Serviços Pendentes">
+        </div>
+
+        <div class="ep-group">
+          <label class="ep-label">Label – Card KPI "Faturamento do Mês"</label>
+          <input class="ep-input" id="ep-txt-kpi5" placeholder="Faturamento do Mês">
+        </div>
+
+        <div class="ep-section-tag" style="margin-top:20px">Itens do Menu Lateral</div>
+
+        <div class="ep-group">
+          <label class="ep-label">Menu: Dashboard</label>
+          <input class="ep-input" id="ep-nav1" placeholder="Dashboard">
+        </div>
+        <div class="ep-group">
+          <label class="ep-label">Menu: Solicitações</label>
+          <input class="ep-input" id="ep-nav2" placeholder="Solicitações">
+        </div>
+        <div class="ep-group">
+          <label class="ep-label">Menu: Agenda</label>
+          <input class="ep-input" id="ep-nav3" placeholder="Agenda">
+        </div>
+        <div class="ep-group">
+          <label class="ep-label">Menu: Serviços</label>
+          <input class="ep-input" id="ep-nav4" placeholder="Serviços">
+        </div>
+        <div class="ep-group">
+          <label class="ep-label">Menu: Profissionais</label>
+          <input class="ep-input" id="ep-nav5" placeholder="Profissionais">
+        </div>
+        <div class="ep-group">
+          <label class="ep-label">Menu: Financeiro</label>
+          <input class="ep-input" id="ep-nav6" placeholder="Financeiro">
+        </div>
+        <div class="ep-group">
+          <label class="ep-label">Menu: Clientes</label>
+          <input class="ep-input" id="ep-nav7" placeholder="Clientes">
+        </div>
+        <div class="ep-group">
+          <label class="ep-label">Menu: Configurações</label>
+          <input class="ep-input" id="ep-nav8" placeholder="Configurações">
+        </div>
+        <div class="ep-group">
+          <label class="ep-label">Menu: Meu App</label>
+          <input class="ep-input" id="ep-nav9" placeholder="Meu App">
+        </div>
+      </div>
+
+      <!-- ── ABA: CORES ── -->
+      <div class="ep-section" id="ep-cores">
+        <div class="ep-section-tag">Cor Principal do App</div>
+
+        <div class="ep-group">
+          <label class="ep-label">Clique em uma cor predefinida ou escolha a sua</label>
+          <div class="ep-colors">
+            <div class="ep-color-btn" style="background:#1565C0" data-color="#1565C0" title="Azul (padrão)" onclick="epSelecionarCor('#1565C0',this)"></div>
+            <div class="ep-color-btn" style="background:#C62828" data-color="#C62828" title="Vermelho" onclick="epSelecionarCor('#C62828',this)"></div>
+            <div class="ep-color-btn" style="background:#2E7D32" data-color="#2E7D32" title="Verde" onclick="epSelecionarCor('#2E7D32',this)"></div>
+            <div class="ep-color-btn" style="background:#FF6F00" data-color="#FF6F00" title="Laranja" onclick="epSelecionarCor('#FF6F00',this)"></div>
+            <div class="ep-color-btn" style="background:#6A1B9A" data-color="#6A1B9A" title="Roxo" onclick="epSelecionarCor('#6A1B9A',this)"></div>
+            <div class="ep-color-btn" style="background:#00838F" data-color="#00838F" title="Teal" onclick="epSelecionarCor('#00838F',this)"></div>
+            <div class="ep-color-btn" style="background:#AD1457" data-color="#AD1457" title="Pink" onclick="epSelecionarCor('#AD1457',this)"></div>
+            <div class="ep-color-btn" style="background:#37474F" data-color="#37474F" title="Cinza" onclick="epSelecionarCor('#37474F',this)"></div>
+            <div class="ep-color-btn" style="background:#BF360C" data-color="#BF360C" title="Terra" onclick="epSelecionarCor('#BF360C',this)"></div>
+            <div class="ep-color-btn" style="background:#1B5E20" data-color="#1B5E20" title="Verde Escuro" onclick="epSelecionarCor('#1B5E20',this)"></div>
+            <div class="ep-color-btn" style="background:#0D47A1" data-color="#0D47A1" title="Azul Escuro" onclick="epSelecionarCor('#0D47A1',this)"></div>
+            <div class="ep-color-btn" style="background:#880E4F" data-color="#880E4F" title="Magenta" onclick="epSelecionarCor('#880E4F',this)"></div>
+          </div>
+          <div class="ep-custom-color">
+            <input type="color" id="ep-cor-custom" value="#1565C0" oninput="epSelecionarCor(this.value,null)">
+            <label style="font-size:13px;color:#616161">Cor personalizada (hex)</label>
+            <input class="ep-input" id="ep-cor-hex" value="#1565C0" maxlength="7" 
+              style="width:110px;font-family:monospace"
+              oninput="epCoresHex(this.value)">
+          </div>
+        </div>
+
+        <div style="margin-top:16px;padding:16px;background:#F4F6F9;border-radius:10px">
+          <div style="font-size:13px;font-weight:600;margin-bottom:10px">Pré-visualização:</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <div id="prev-btn" style="padding:9px 18px;border-radius:7px;font-size:14px;font-weight:600;color:#fff;background:#1565C0">Botão</div>
+            <div id="prev-nav" style="padding:11px 18px;font-size:14px;font-weight:600;color:#1565C0;background:#E3F2FD;border-radius:6px;border-left:3px solid #1565C0">Menu Ativo</div>
+            <div id="prev-badge" style="background:#1565C0;color:#fff;border-radius:10px;font-size:11px;font-weight:700;padding:4px 10px">Badge</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── ABA: SUPABASE ── -->
+      <div class="ep-section" id="ep-supabase">
+        <div class="ep-section-tag">Configuração do Banco de Dados (Supabase)</div>
+
+        <div style="background:#E3F2FD;border:1px solid #90CAF9;border-radius:8px;padding:14px;margin-bottom:20px;font-size:13px;color:#0D47A1">
+          ℹ️ Edite aqui para apontar o app para outro projeto Supabase. Após salvar, o arquivo deve ser baixado e publicado novamente na hospedagem.
+        </div>
+
+        <div class="ep-group">
+          <label class="ep-label">SUPABASE_URL</label>
+          <input class="ep-input" id="ep-sb-url" style="font-family:monospace;font-size:12px" placeholder="https://xxxx.supabase.co">
+          <div style="font-size:11px;color:#9E9E9E;margin-top:4px">Encontre em: Supabase → Settings → API → Project URL</div>
+        </div>
+
+        <div class="ep-group">
+          <label class="ep-label">SUPABASE_ANON_KEY (chave pública)</label>
+          <textarea class="ep-textarea" id="ep-sb-key" style="font-family:monospace;font-size:11px;min-height:70px" placeholder="eyJhbGciO..."></textarea>
+          <div style="font-size:11px;color:#9E9E9E;margin-top:4px">Encontre em: Supabase → Settings → API → anon / public</div>
+        </div>
+
+        <div style="background:#FFF3E0;border:1px solid #FFCC80;border-radius:8px;padding:14px;font-size:13px;color:#E65100">
+          ⚠️ Nunca use a <b>service_role key</b> aqui. Use apenas a chave <b>anon (pública)</b>.
+        </div>
+      </div>
+
+      <!-- ── ABA: EXPORTAR ── -->
+      <div class="ep-section" id="ep-exportar">
+        <div class="ep-section-tag">Baixar & Publicar</div>
+
+        <div class="ep-export-box">
+          <b>📥 Como usar:</b><br>
+          1. Preencha tudo nas abas anteriores<br>
+          2. Clique em <b>"Aplicar Alterações"</b> nos botões abaixo<br>
+          3. Clique em <b>"Baixar HTML Atualizado"</b><br>
+          4. Suba o arquivo na sua hospedagem<br>
+          5. Pronto! Seu app está atualizado ✅
+        </div>
+
+        <div style="margin-top:20px;display:flex;flex-direction:column;gap:12px">
+          <button class="ep-btn ep-btn-primary" style="width:100%;justify-content:center;font-size:15px;padding:13px" onclick="epBaixarHTML()">
+            📥 Baixar HTML Atualizado
+          </button>
+          <button class="ep-btn ep-btn-outline" style="width:100%;justify-content:center" onclick="epExportarConfig()">
+            📋 Copiar Configurações (JSON)
+          </button>
+          <button class="ep-btn ep-btn-outline" style="width:100%;justify-content:center" onclick="document.getElementById('ep-import-input').click()">
+            📂 Importar Configurações (JSON)
+          </button>
+          <input type="file" id="ep-import-input" accept=".json" style="display:none" onchange="epImportarConfig(this)">
+        </div>
+
+        <div style="margin-top:20px;padding:14px;background:#F4F6F9;border-radius:8px">
+          <div style="font-size:12px;font-weight:700;color:#616161;margin-bottom:8px">CONFIGURAÇÕES ATUAIS (snapshot)</div>
+          <code id="ep-config-preview" style="font-size:10px;color:#333;word-break:break-all;white-space:pre-wrap"></code>
+        </div>
+      </div>
+
+    </div><!-- /ep-body -->
+
+    <!-- Ações do rodapé -->
+    <div class="ep-actions">
+      <button class="ep-btn ep-btn-outline" onclick="fecharEditor()">Cancelar</button>
+      <button class="ep-btn ep-btn-primary" onclick="epAplicar()">✅ Aplicar Alterações</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════
+   EDITOR VISUAL — Lógica completa
+══════════════════════════════════════════════ */
+
+// Estado do editor
+const EP = {
+  logoBase64: null,
+  corAtual: '#1565C0',
+};
+
+// ── Abrir / Fechar ──
+function abrirEditor() {
+  epCarregarValoresAtuais();
+  document.getElementById('edit-overlay').classList.add('open');
+}
+function fecharEditor() {
+  document.getElementById('edit-overlay').classList.remove('open');
+}
+// Fechar clicando fora
+document.getElementById('edit-overlay').addEventListener('click', function(e){
+  if(e.target === this) fecharEditor();
+});
+
+// ── Troca de aba ──
+function epTab(btn, secId) {
+  document.querySelectorAll('.ep-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.ep-section').forEach(s => s.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(secId).classList.add('active');
+  if(secId === 'ep-exportar') epAtualizarPreviewConfig();
+}
+
+// ── Carregar valores atuais do app ──
+function epCarregarValoresAtuais() {
+  // Identidade
+  document.getElementById('ep-nome').value = state.config.nome || '';
+  document.getElementById('ep-link').value = state.config.link || '';
+  document.getElementById('ep-zap').value  = state.config.zap  || '';
+  document.getElementById('ep-desc').value = state.config.desc || '';
+  document.getElementById('ep-title').value = document.title || '';
+
+  // Logo atual
+  const avatar = document.getElementById('sb-avatar');
+  if(avatar) {
+    const img = avatar.querySelector('img');
+    if(img && img.src) {
+      EP.logoBase64 = img.src;
+      document.getElementById('ep-logo-preview').src = img.src;
+      document.getElementById('ep-logo-preview').style.display = 'block';
+      document.getElementById('ep-logo-placeholder').style.display = 'none';
+    }
+  }
+
+  // Textos
+  const kpiLabels = document.querySelectorAll('.dash-kpi-label');
+  if(kpiLabels[0]) document.getElementById('ep-txt-kpi1').value = kpiLabels[0].textContent.trim();
+  if(kpiLabels[1]) document.getElementById('ep-txt-kpi2').value = kpiLabels[1].textContent.trim();
+  if(kpiLabels[2]) document.getElementById('ep-txt-kpi3').value = kpiLabels[2].textContent.trim();
+  if(kpiLabels[3]) document.getElementById('ep-txt-kpi4').value = kpiLabels[3].textContent.trim();
+  if(kpiLabels[4]) document.getElementById('ep-txt-kpi5').value = kpiLabels[4].textContent.trim();
+
+  // Menu
+  const navItems = document.querySelectorAll('.nav-item');
+  const navInputs = ['ep-nav1','ep-nav2','ep-nav3','ep-nav4','ep-nav5','ep-nav6','ep-nav7','ep-nav8','ep-nav9'];
+  navItems.forEach((item, i) => {
+    if(navInputs[i]) {
+      const txt = item.textContent.replace(/\d+/g,'').trim();
+      document.getElementById(navInputs[i]).value = txt;
+    }
+  });
+
+  const btnCliente = document.querySelector('.btn-green[onclick*="abrirAppCliente"]');
+  if(btnCliente) document.getElementById('ep-txt-btn-cliente').value = btnCliente.textContent.trim();
+
+  const dashTitle = document.querySelector('#page-dashboard .topbar-title');
+  if(dashTitle) document.getElementById('ep-txt-dashboard').value = dashTitle.textContent.trim();
+
+  // Cor
+  EP.corAtual = state.config.cor || '#1565C0';
+  document.getElementById('ep-cor-hex').value = EP.corAtual;
+  document.getElementById('ep-cor-custom').value = EP.corAtual;
+  epAtualizarPreviewCor(EP.corAtual);
+  document.querySelectorAll('.ep-color-btn').forEach(btn => {
+    btn.classList.toggle('selected', btn.dataset.color === EP.corAtual);
+  });
+
+  // Supabase
+  document.getElementById('ep-sb-url').value = typeof SUPABASE_URL !== 'undefined' ? SUPABASE_URL : '';
+  document.getElementById('ep-sb-key').value = typeof SUPABASE_ANON_KEY !== 'undefined' ? SUPABASE_ANON_KEY : '';
+}
+
+// ── LOGO ──
+function epCarregarLogo(input) {
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    EP.logoBase64 = e.target.result;
+    document.getElementById('ep-logo-preview').src = e.target.result;
+    document.getElementById('ep-logo-preview').style.display = 'block';
+    document.getElementById('ep-logo-placeholder').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+function epRemoverLogo() {
+  EP.logoBase64 = null;
+  document.getElementById('ep-logo-preview').src = '';
+  document.getElementById('ep-logo-preview').style.display = 'none';
+  document.getElementById('ep-logo-placeholder').style.display = 'block';
+  document.getElementById('ep-logo-input').value = '';
+}
+
+// ── CORES ──
+function epSelecionarCor(cor, btn) {
+  EP.corAtual = cor;
+  document.getElementById('ep-cor-hex').value = cor;
+  document.getElementById('ep-cor-custom').value = cor;
+  document.querySelectorAll('.ep-color-btn').forEach(b => b.classList.remove('selected'));
+  if(btn) btn.classList.add('selected');
+  epAtualizarPreviewCor(cor);
+}
+function epCoresHex(val) {
+  if(/^#[0-9A-Fa-f]{6}$/.test(val)) {
+    epSelecionarCor(val, null);
+    document.getElementById('ep-cor-custom').value = val;
+  }
+}
+function epAtualizarPreviewCor(cor) {
+  const light = cor + '22';
+  document.getElementById('prev-btn').style.background = cor;
+  document.getElementById('prev-nav').style.color = cor;
+  document.getElementById('prev-nav').style.background = light;
+  document.getElementById('prev-nav').style.borderLeftColor = cor;
+  document.getElementById('prev-badge').style.background = cor;
+}
+
+// ── APLICAR ──
+function epAplicar() {
+  const nome = document.getElementById('ep-nome').value.trim();
+  const link = document.getElementById('ep-link').value.trim();
+  const zap  = document.getElementById('ep-zap').value.trim();
+  const desc = document.getElementById('ep-desc').value.trim();
+  const titulo = document.getElementById('ep-title').value.trim();
+
+  // Atualiza state.config
+  if(nome) { state.config.nome = nome; document.getElementById('cfg-nome').value = nome; }
+  if(link) { state.config.link = link; document.getElementById('cfg-link').value = link; }
+  if(zap)  { state.config.zap  = zap;  document.getElementById('cfg-zap').value  = zap; }
+  if(desc) { state.config.desc = desc; document.getElementById('cfg-desc').value = desc; }
+
+  // Cor principal
+  state.config.cor = EP.corAtual;
+  document.documentElement.style.setProperty('--primary', EP.corAtual);
+
+  // Calcular variante clara da cor (aproximação)
+  document.documentElement.style.setProperty('--primary-dark', EP.corAtual);
+  document.documentElement.style.setProperty('--primary-light', EP.corAtual + '22');
+
+  // Logo
+  if(EP.logoBase64) {
+    const avatar = document.getElementById('sb-avatar');
+    if(avatar) {
+      let img = avatar.querySelector('img');
+      if(!img) { img = document.createElement('img'); avatar.appendChild(img); }
+      img.src = EP.logoBase64;
+      img.style.cssText = 'width:100%;height:100%;object-fit:contain';
+    }
+  } else if(EP.logoBase64 === null && document.getElementById('ep-logo-input').value === '') {
+    // Não remove se nenhuma ação tomada
+  }
+
+  // Título da página
+  if(titulo) document.title = titulo;
+
+  // Textos KPI
+  const kpiLabels = document.querySelectorAll('.dash-kpi-label');
+  const kpiInputs = ['ep-txt-kpi1','ep-txt-kpi2','ep-txt-kpi3','ep-txt-kpi4','ep-txt-kpi5'];
+  kpiLabels.forEach((el, i) => {
+    const val = document.getElementById(kpiInputs[i])?.value.trim();
+    if(val) el.textContent = val;
+  });
+
+  // Menu lateral
+  const navItems = document.querySelectorAll('.nav-item');
+  const navInputs = ['ep-nav1','ep-nav2','ep-nav3','ep-nav4','ep-nav5','ep-nav6','ep-nav7','ep-nav8','ep-nav9'];
+  navItems.forEach((item, i) => {
+    const input = document.getElementById(navInputs[i]);
+    if(!input) return;
+    const val = input.value.trim();
+    if(!val) return;
+    // Preservar SVG e badge, alterar apenas o text node
+    const nodes = [...item.childNodes];
+    nodes.forEach(n => {
+      if(n.nodeType === 3 && n.textContent.trim()) n.textContent = ' ' + val + ' ';
+    });
+  });
+
+  // Botão cliente
+  const btnCliente = document.querySelector('.btn-green[onclick*="abrirAppCliente"]');
+  const valBtnCliente = document.getElementById('ep-txt-btn-cliente').value.trim();
+  if(btnCliente && valBtnCliente) btnCliente.textContent = valBtnCliente;
+
+  // Título dashboard
+  const dashTitle = document.querySelector('#page-dashboard .topbar-title');
+  const valDashTitle = document.getElementById('ep-txt-dashboard').value.trim();
+  if(dashTitle && valDashTitle) dashTitle.textContent = valDashTitle;
+
+  // Atualizar UI do app
+  atualizarConfig();
+  salvar();
+
+  toast('✅ Alterações aplicadas com sucesso!');
+  fecharEditor();
+}
+
+// ── EXPORTAR / IMPORTAR ──
+function epColetarConfig() {
+  return {
+    nome: document.getElementById('ep-nome').value,
+    link: document.getElementById('ep-link').value,
+    zap:  document.getElementById('ep-zap').value,
+    desc: document.getElementById('ep-desc').value,
+    cor:  EP.corAtual,
+    title: document.getElementById('ep-title').value,
+    logoBase64: EP.logoBase64,
+    kpis: ['ep-txt-kpi1','ep-txt-kpi2','ep-txt-kpi3','ep-txt-kpi4','ep-txt-kpi5']
+            .map(id => document.getElementById(id)?.value || ''),
+    navs: ['ep-nav1','ep-nav2','ep-nav3','ep-nav4','ep-nav5','ep-nav6','ep-nav7','ep-nav8','ep-nav9']
+            .map(id => document.getElementById(id)?.value || ''),
+    btnCliente: document.getElementById('ep-txt-btn-cliente').value,
+    supabaseUrl: document.getElementById('ep-sb-url').value,
+    supabaseKey: document.getElementById('ep-sb-key').value,
+    ts: Date.now(),
+  };
+}
+
+function epAtualizarPreviewConfig() {
+  const cfg = epColetarConfig();
+  const preview = {...cfg, logoBase64: cfg.logoBase64 ? '[imagem carregada]' : null};
+  const el = document.getElementById('ep-config-preview');
+  if(el) el.textContent = JSON.stringify(preview, null, 2);
+}
+
+function epExportarConfig() {
+  const json = JSON.stringify(epColetarConfig(), null, 2);
+  navigator.clipboard.writeText(json).then(() => {
+    toast('📋 Config copiada para a área de transferência!');
+  }).catch(() => {
+    const el = document.getElementById('ep-config-preview');
+    if(el) el.textContent = json;
+    toast('Config exibida abaixo — copie manualmente');
+  });
+}
+
+function epImportarConfig(input) {
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const cfg = JSON.parse(e.target.result);
+      if(cfg.nome) document.getElementById('ep-nome').value = cfg.nome;
+      if(cfg.link) document.getElementById('ep-link').value = cfg.link;
+      if(cfg.zap)  document.getElementById('ep-zap').value  = cfg.zap;
+      if(cfg.desc) document.getElementById('ep-desc').value = cfg.desc;
+      if(cfg.title) document.getElementById('ep-title').value = cfg.title;
+      if(cfg.cor) { EP.corAtual = cfg.cor; epSelecionarCor(cfg.cor, null); }
+      if(cfg.logoBase64) {
+        EP.logoBase64 = cfg.logoBase64;
+        document.getElementById('ep-logo-preview').src = cfg.logoBase64;
+        document.getElementById('ep-logo-preview').style.display = 'block';
+        document.getElementById('ep-logo-placeholder').style.display = 'none';
+      }
+      if(cfg.kpis) cfg.kpis.forEach((v,i) => {
+        const el = document.getElementById(['ep-txt-kpi1','ep-txt-kpi2','ep-txt-kpi3','ep-txt-kpi4','ep-txt-kpi5'][i]);
+        if(el) el.value = v;
+      });
+      if(cfg.navs) cfg.navs.forEach((v,i) => {
+        const el = document.getElementById(['ep-nav1','ep-nav2','ep-nav3','ep-nav4','ep-nav5','ep-nav6','ep-nav7','ep-nav8','ep-nav9'][i]);
+        if(el) el.value = v;
+      });
+      if(cfg.btnCliente) document.getElementById('ep-txt-btn-cliente').value = cfg.btnCliente;
+      if(cfg.supabaseUrl) document.getElementById('ep-sb-url').value = cfg.supabaseUrl;
+      if(cfg.supabaseKey) document.getElementById('ep-sb-key').value = cfg.supabaseKey;
+      toast('📂 Configurações importadas! Clique em "Aplicar".');
+    } catch(err) {
+      alert('Arquivo JSON inválido: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+// ── BAIXAR HTML ATUALIZADO ──
+function epBaixarHTML() {
+  // Primeiro aplica tudo
+  epAplicar();
+
+  // Reabrir editor para gerar o HTML
+  setTimeout(() => {
+    try {
+      // Clonar o documento atual
+      const html = document.documentElement.outerHTML;
+
+      // Injetar as alterações de Supabase no conteúdo
+      let htmlFinal = html;
+      const newSbUrl = document.getElementById('ep-sb-url').value.trim();
+      const newSbKey = document.getElementById('ep-sb-key').value.trim();
+
+      if(newSbUrl && typeof SUPABASE_URL !== 'undefined') {
+        htmlFinal = htmlFinal.replace(
+          new RegExp("const SUPABASE_URL = '[^']*'"),
+          "const SUPABASE_URL = '" + newSbUrl + "'"
+        );
+      }
+      if(newSbKey && typeof SUPABASE_ANON_KEY !== 'undefined') {
+        htmlFinal = htmlFinal.replace(
+          new RegExp("const SUPABASE_ANON_KEY = '[^']*'"),
+          "const SUPABASE_ANON_KEY = '" + newSbKey + "'"
+        );
+      }
+
+      // Criar blob e download
+      const blob = new Blob([htmlFinal], {type: 'text/html;charset=utf-8'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'dashboard-editado.html';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      toast('📥 Arquivo baixado! Publique na sua hospedagem.');
+    } catch(err) {
+      alert('Erro ao gerar arquivo: ' + err.message);
+    }
+  }, 400);
+}
+</script>
+
 </body>
 </html>
