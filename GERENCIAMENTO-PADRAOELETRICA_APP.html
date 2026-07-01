@@ -8,12 +8,8 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Gerenciamento">
-<link rel="manifest" href="manifest-gerenciamento.json">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="PE Gerenciamento">
+<link rel="manifest" href="manifest-gerenciamento.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <script>
 if ('serviceWorker' in navigator) {
@@ -328,7 +324,7 @@ function instalarAdmin() {
 <!-- TELA PUBLICA DO CLIENTE -->
 <div id="tela-publica">
   <div class="pub-header">
-    <button class="pub-back" onclick="fecharPublica()">✕ Fechar</button>
+    <button class="pub-back" id="pub-btn-fechar" onclick="fecharPublica()">✕ Fechar</button>
     <div class="pub-logo" id="pub-logo-txt">J</div>
     <div class="pub-nome" id="pub-nome-txt">Padrão Elétrica</div>
     <div class="pub-sub" id="pub-sub-txt">Agende seu serviço com facilidade</div>
@@ -493,6 +489,7 @@ function instalarAdmin() {
           </div>
           <div style="display:flex;justify-content:center;align-items:center;flex:1;min-height:160px">
             <canvas id="chart-pizza" width="160" height="160"></canvas>
+            <div class="empty" id="chart-pizza-empty" style="display:none;padding:20px"><p>Nenhum dado ainda</p></div>
           </div>
           <div id="pizza-legenda" style="margin-top:12px;display:flex;flex-direction:column;gap:6px"></div>
         </div>
@@ -504,6 +501,7 @@ function instalarAdmin() {
           </div>
           <div style="position:relative;height:180px">
             <canvas id="chart-barras" style="width:100%;height:100%"></canvas>
+            <div class="empty" id="chart-barras-empty" style="display:none;padding:20px"><p>Nenhum dado ainda</p></div>
           </div>
         </div>
 
@@ -514,6 +512,7 @@ function instalarAdmin() {
           </div>
           <div style="position:relative;flex:1;min-height:180px">
             <canvas id="chart-rosca" style="width:100%;height:100%"></canvas>
+            <div class="empty" id="chart-rosca-empty" style="display:none;padding:20px"><p>Nenhum dado ainda</p></div>
           </div>
         </div>
       </div>
@@ -781,7 +780,7 @@ Acesse o app para confirmar ou cancelar.</textarea>
     <div style="padding:24px 28px">
       <div class="card">
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
-          <div style="font-size:32px">🧾</div>
+          <div id="rec-header-logo" data-fallback="🧾" style="font-size:32px">🧾</div>
           <div>
             <div style="font-size:16px;font-weight:700">Novo Recibo</div>
             <div style="font-size:13px;color:var(--text2)">Preencha os dados abaixo para gerar o recibo de pagamento</div>
@@ -796,6 +795,10 @@ Acesse o app para confirmar ou cancelar.</textarea>
             <label class="form-label">Data do Recibo</label>
             <input class="form-input" id="rec-data" type="date">
           </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">WhatsApp do Cliente</label>
+          <input class="form-input" id="rec-whatsapp" placeholder="Ex: (85) 99999-9999">
         </div>
         <div class="form-row">
           <div class="form-group">
@@ -828,6 +831,7 @@ Acesse o app para confirmar ou cancelar.</textarea>
         </div>
         <div style="display:flex;gap:10px;margin-top:8px">
           <button class="btn btn-primary" onclick="imprimirRecibo()">🖨️ Imprimir / Salvar PDF</button>
+          <button class="btn btn-outline" style="color:#25D366;border-color:#25D366" onclick="enviarReciboZap()">📲 Enviar via WhatsApp</button>
           <button class="btn btn-outline" onclick="limparRecibo()">🗑️ Limpar</button>
         </div>
       </div>
@@ -879,7 +883,7 @@ Acesse o app para confirmar ou cancelar.</textarea>
     <div style="padding:24px 28px">
       <div class="card">
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
-          <div style="font-size:32px">📋</div>
+          <div id="orc-header-logo" data-fallback="📋" style="font-size:32px">📋</div>
           <div>
             <div style="font-size:16px;font-weight:700">Novo Orçamento</div>
             <div style="font-size:13px;color:var(--text2)">Preencha os dados abaixo para gerar o orçamento</div>
@@ -894,6 +898,10 @@ Acesse o app para confirmar ou cancelar.</textarea>
             <label class="form-label">Data</label>
             <input class="form-input" id="orc-data" type="date">
           </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">WhatsApp do Cliente</label>
+          <input class="form-input" id="orc-whatsapp" placeholder="Ex: (85) 99999-9999">
         </div>
         <div class="form-group">
           <label class="form-label">Serviço / Descrição</label>
@@ -915,6 +923,7 @@ Acesse o app para confirmar ou cancelar.</textarea>
         </div>
         <div style="display:flex;gap:10px;margin-top:8px">
           <button class="btn btn-primary" onclick="imprimirOrcamento()">🖨️ Imprimir / Salvar PDF</button>
+          <button class="btn btn-outline" style="color:#25D366;border-color:#25D366" onclick="enviarOrcamentoZap()">📲 Enviar via WhatsApp</button>
           <button class="btn btn-outline" onclick="limparOrcamento()">🗑️ Limpar</button>
         </div>
       </div>
@@ -929,7 +938,7 @@ Acesse o app para confirmar ou cancelar.</textarea>
     <div style="padding:24px 28px">
       <div class="card">
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
-          <div style="font-size:32px">🔧</div>
+          <div id="os-header-logo" data-fallback="🔧" style="font-size:32px">🔧</div>
           <div>
             <div style="font-size:16px;font-weight:700">Nova Ordem de Serviço</div>
             <div style="font-size:13px;color:var(--text2)">Preencha os dados para gerar a O.S.</div>
@@ -954,6 +963,10 @@ Acesse o app para confirmar ou cancelar.</textarea>
             <label class="form-label">Profissional Responsável</label>
             <input class="form-input" id="os-profissional" placeholder="Nome do técnico">
           </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">WhatsApp do Cliente</label>
+          <input class="form-input" id="os-whatsapp" placeholder="Ex: (85) 99999-9999">
         </div>
         <div class="form-group">
           <label class="form-label">Endereço do Serviço</label>
@@ -983,6 +996,7 @@ Acesse o app para confirmar ou cancelar.</textarea>
         </div>
         <div style="display:flex;gap:10px;margin-top:8px">
           <button class="btn btn-primary" onclick="imprimirOS()">🖨️ Imprimir / Salvar PDF</button>
+          <button class="btn btn-outline" style="color:#25D366;border-color:#25D366" onclick="enviarOSZap()">📲 Enviar via WhatsApp</button>
           <button class="btn btn-outline" onclick="limparOS()">🗑️ Limpar</button>
         </div>
       </div>
@@ -1171,7 +1185,7 @@ const state = {
     msgNotificacao: '',
   },
   semanaOffset: 0,
-  diaSelecionado: new Date().toISOString().split('T')[0],
+  diaSelecionado: toLocalISODate(new Date()),
 };
 
 // ── Conversores banco (snake_case) <-> app (camelCase) ──
@@ -1213,6 +1227,10 @@ function clienteParaBanco(c) {
   return { id: c.id, nome: c.nome, zap: c.zap, end_: c.end || '',
     pedidos: c.pedidos || 0, gasto: c.gasto || 0 };
 }
+function clienteDoBanco(row) {
+  return { id: row.id, nome: row.nome, zap: row.zap, end: row.end_ || '',
+    pedidos: row.pedidos || 0, gasto: row.gasto || 0 };
+}
 
 async function carregar() {
   try {
@@ -1230,7 +1248,7 @@ async function carregar() {
     if (ags.data) state.agendamentos = ags.data.map(agendamentoDoBanco);
     if (sols.data) state.solicitacoes = sols.data.map(solicitacaoDoBanco);
     if (profs.data) state.profissionais = profs.data;
-    if (cls.data) state.clientes = cls.data;
+    if (cls.data) state.clientes = cls.data.map(clienteDoBanco);
     if (tr.data) state.transacoes = tr.data;
   } catch(e) { console.error('Erro ao carregar do Supabase:', e); }
 }
@@ -1285,7 +1303,41 @@ function toast(msg, dur=2800) {
   t.textContent = msg; t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), dur);
 }
-function today() { return new Date().toISOString().split('T')[0]; }
+// ── Logo da marca: usada no cabeçalho dos 3 documentos (Orçamento, O.S., Recibo) ──
+function getLogoSrc() {
+  const avatar = document.getElementById('sb-avatar');
+  const img = avatar ? avatar.querySelector('img') : null;
+  if (img && img.src) return img.src;
+  if (typeof EP !== 'undefined' && EP.logoBase64) return EP.logoBase64;
+  return null;
+}
+function atualizarHeaderLogos() {
+  const src = getLogoSrc();
+  ['orc-header-logo', 'os-header-logo', 'rec-header-logo'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.innerHTML = src
+      ? `<img src="${src}" alt="Logo" style="height:44px;max-width:170px;object-fit:contain">`
+      : (el.dataset.fallback || '');
+  });
+  // Área de logo no preview/impressão do recibo (já existente no HTML, agora preenchida)
+  const recArea = document.getElementById('rec-logo-area');
+  if (recArea) {
+    recArea.innerHTML = src
+      ? `<img src="${src}" alt="Logo" style="height:52px;max-width:200px;object-fit:contain;display:block;margin:0 auto">`
+      : '';
+  }
+}
+// Retorna a data (YYYY-MM-DD) usando o fuso horário LOCAL do navegador.
+// Importante: NÃO usar date.toISOString() para isso, pois ela converte
+// para UTC — no Brasil (UTC-3) isso faz o "dia" virar ~3h antes da meia-noite.
+function toLocalISODate(d) {
+  const ano = d.getFullYear();
+  const mes = String(d.getMonth() + 1).padStart(2, '0');
+  const dia = String(d.getDate()).padStart(2, '0');
+  return `${ano}-${mes}-${dia}`;
+}
+function today() { return toLocalISODate(new Date()); }
 function fmtDate(d) {
   if (!d) return '–';
   const dt = new Date(d + 'T00:00:00');
@@ -1514,12 +1566,13 @@ function renderCalSemana() {
   const base = new Date(hoje);
   base.setDate(hoje.getDate() + state.semanaOffset * 7);
   const dow = base.getDay();
-  const lunes = new Date(base); lunes.setDate(base.getDate() - dow + 1);
+  const diff = (dow + 6) % 7; // segunda = 0, domingo = 6
+  const lunes = new Date(base); lunes.setDate(base.getDate() - diff);
   const dias = ['SEG','TER','QUA','QUI','SEX','SÁB','DOM'];
   let html = '';
   for (let i = 0; i < 7; i++) {
     const d = new Date(lunes); d.setDate(lunes.getDate() + i);
-    const ds = d.toISOString().split('T')[0];
+    const ds = toLocalISODate(d);
     const isToday = ds === today();
     const isSel = ds === state.diaSelecionado;
     const temAg = state.agendamentos.some(a => a.data === ds);
@@ -1768,12 +1821,11 @@ let _chartPizza = null, _chartBarras = null, _chartRosca = null;
 
 // Serviços fixos da empresa para o gráfico de pizza
 const SERVICOS_EMPRESA = [
-  'Montar Móveis',
-  'Serviços de Pedreiro',
-  'Marido de Aluguel',
   'Instalações e Manutenções Elétricas',
   'Serviços em Encanações Hidráulicas',
   'Instalações de Circuitos de Câmeras',
+  'Montagem de Móveis',
+  'Construção Civil',
 ];
 const PIZZA_COLORS = ['#1565C0','#FF6F00','#2E7D32','#7B1FA2','#00838F','#C62828'];
 
@@ -1875,20 +1927,28 @@ function renderDashboard() {
   });
 
   const totalAgsEmp = Object.values(srvCountEmp).reduce((a,b)=>a+b,0);
-  const pizzaData = SERVICOS_EMPRESA.map(s => srvCountEmp[s] || 0);
+  // Inclui "Outros" no gráfico (quando houver) para que o total exibido bata com o total real
+  const temOutros = (srvCountEmp['Outros'] || 0) > 0;
+  const pizzaLabels = temOutros ? [...SERVICOS_EMPRESA, 'Outros'] : SERVICOS_EMPRESA;
+  const pizzaColors = temOutros ? [...PIZZA_COLORS, '#9E9E9E'] : PIZZA_COLORS;
+  const pizzaData = pizzaLabels.map(s => srvCountEmp[s] || 0);
 
   const pizzaCtx = document.getElementById('chart-pizza');
+  const pizzaEmpty = document.getElementById('chart-pizza-empty');
   if (pizzaCtx) {
     if (_chartPizza) { _chartPizza.destroy(); _chartPizza = null; }
     if (totalAgsEmp === 0) {
-      pizzaCtx.parentElement.innerHTML = '<div class="empty" style="padding:20px"><p>Nenhum dado ainda</p></div>';
+      pizzaCtx.style.display = 'none';
+      if (pizzaEmpty) pizzaEmpty.style.display = 'block';
       document.getElementById('pizza-legenda').innerHTML = '';
     } else {
+    pizzaCtx.style.display = '';
+    if (pizzaEmpty) pizzaEmpty.style.display = 'none';
     _chartPizza = new Chart(pizzaCtx, {
       type: 'pie',
       data: {
-        labels: SERVICOS_EMPRESA,
-        datasets: [{ data: pizzaData, backgroundColor: PIZZA_COLORS, borderWidth: 2, borderColor:'#fff' }]
+        labels: pizzaLabels,
+        datasets: [{ data: pizzaData, backgroundColor: pizzaColors, borderWidth: 2, borderColor:'#fff' }]
       },
       options: {
         responsive: false,
@@ -1898,9 +1958,9 @@ function renderDashboard() {
         }
       }
     });
-    document.getElementById('pizza-legenda').innerHTML = SERVICOS_EMPRESA.map((s,i) => `
+    document.getElementById('pizza-legenda').innerHTML = pizzaLabels.map((s,i) => `
       <div style="display:flex;align-items:center;gap:7px;font-size:10px">
-        <span style="width:9px;height:9px;border-radius:50%;background:${PIZZA_COLORS[i]};flex-shrink:0;display:inline-block"></span>
+        <span style="width:9px;height:9px;border-radius:50%;background:${pizzaColors[i]};flex-shrink:0;display:inline-block"></span>
         <span style="flex:1;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${s}">${s}</span>
         <strong>${pizzaData[i]}</strong>
       </div>`).join('');
@@ -1919,11 +1979,15 @@ function renderDashboard() {
   let clienteEntries = Object.entries(clienteSrv).sort((a,b) => a[1] - b[1]).slice(-8);
 
   const barCtx = document.getElementById('chart-barras');
+  const barEmpty = document.getElementById('chart-barras-empty');
   if (barCtx) {
     if (_chartBarras) { _chartBarras.destroy(); _chartBarras = null; }
     if (!clienteEntries.length) {
-      barCtx.parentElement.innerHTML = '<div class="empty" style="padding:20px"><p>Nenhum dado ainda</p></div>';
-    } else
+      barCtx.style.display = 'none';
+      if (barEmpty) barEmpty.style.display = 'block';
+    } else {
+    barCtx.style.display = '';
+    if (barEmpty) barEmpty.style.display = 'none';
     _chartBarras = new Chart(barCtx, {
       type: 'bar',
       data: {
@@ -1948,6 +2012,7 @@ function renderDashboard() {
         }
       }
     });
+    } // fim else barras
   }
 
   // ─────────────────────────────────────────────────────────────────
@@ -1966,11 +2031,15 @@ function renderDashboard() {
     .sort((a,b) => a[1] - b[1]); // crescente
 
   const roscaCtx = document.getElementById('chart-rosca');
+  const roscaEmpty = document.getElementById('chart-rosca-empty');
   if (roscaCtx) {
     if (_chartRosca) { _chartRosca.destroy(); _chartRosca = null; }
     if (!satEntries.length) {
-      roscaCtx.parentElement.innerHTML = '<div class="empty" style="padding:20px"><p>Nenhum dado ainda</p></div>';
-    } else
+      roscaCtx.style.display = 'none';
+      if (roscaEmpty) roscaEmpty.style.display = 'block';
+    } else {
+    roscaCtx.style.display = '';
+    if (roscaEmpty) roscaEmpty.style.display = 'none';
     _chartRosca = new Chart(roscaCtx, {
       type: 'bar',
       data: {
@@ -2000,13 +2069,14 @@ function renderDashboard() {
         }
       }
     });
+    } // fim else rosca
   }
 
   // ─────────────────────────────────────────────────────────────────
   // QUANTIDADE DE SERVIÇOS MENSAIS — por status no mês atual
   // ─────────────────────────────────────────────────────────────────
   const rankEl = document.getElementById('dash-ranking');
-  const mesAtual = new Date().toISOString().slice(0, 7); // "YYYY-MM"
+  const mesAtual = toLocalISODate(new Date()).slice(0, 7); // "YYYY-MM"
   const mesNomeAtual = new Date().toLocaleDateString('pt-BR', {month:'long', year:'numeric'});
 
   const labelMes = document.getElementById('dash-srvm-mes');
@@ -2051,12 +2121,14 @@ function atualizarConfig() {
   const link = document.getElementById('cfg-link').value || state.config.link;
   document.getElementById('sb-url').textContent = link + '.app';
   document.getElementById('topbar-link-text').textContent = link + '.app/agendar/' + link;
+  document.getElementById('topbar-link-text').dataset.realUrl = urlAppCliente();
   // atualiza tela pública
   document.getElementById('pub-nome-txt').textContent = nome;
-  document.getElementById('pub-logo-txt').textContent = nome[0].toUpperCase();
+  document.getElementById('pub-logo-txt').textContent = (nome[0] || 'A').toUpperCase();
   // atualiza página Meu App se estiver visível
   const pgMeuApp = document.getElementById('page-meuapp');
   if (pgMeuApp && pgMeuApp.classList.contains('active')) renderMeuApp();
+  atualizarHeaderLogos();
 }
 function setColor(c, el) {
   document.querySelectorAll('.color-opt').forEach(x => x.classList.remove('selected'));
@@ -2095,12 +2167,11 @@ function togglePgto(p, v) {
 
 // ─── LINK / COMPARTILHAR ─────────────────────────────────────────
 function copiarLink() {
-  const txt = document.getElementById('topbar-link-text').textContent;
-  navigator.clipboard.writeText('https://' + txt).catch(() => {});
+  navigator.clipboard.writeText(urlAppCliente()).catch(() => {});
   toast('Link copiado!');
 }
 function compartilharZap() {
-  const link = 'https://' + document.getElementById('topbar-link-text').textContent;
+  const link = urlAppCliente();
   const nome = state.config.nome || 'Padrão Elétrica';
   const msg = `Olá! Agende seu serviço com ${nome} pelo link:\n${link}\n\nRápido, fácil e direto! 👆`;
   window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
@@ -2109,11 +2180,44 @@ function compartilharZap() {
 // ─── APP DO CLIENTE (link real + QR Code) ────────────────────────
 // Resolve a URL do app-cliente.html relativa ao arquivo do admin, preservando a query de link.
 function urlAppCliente() {
+  // Aponta para este MESMO arquivo, com um parâmetro que ativa a tela
+  // pública de agendamento automaticamente ao abrir o link (ver detecção
+  // de "?cliente=1" logo no início do bloco de inicialização do app).
   const base = window.location.href.split('#')[0].split('?')[0];
-  const dir = base.substring(0, base.lastIndexOf('/') + 1);
   const link = state.config.link || 'padraoeletrica';
-  return dir + 'app-cliente.html?loja=' + encodeURIComponent(link);
+  return base + '?cliente=1&loja=' + encodeURIComponent(link);
 }
+// ─── UTIL: formata número de WhatsApp (adiciona DDI 55 se faltar) ─
+function formatarZapDestino(numero) {
+  let digitos = (numero || '').replace(/\D/g, '');
+  if (!digitos) return null;
+  if (digitos.length <= 11) digitos = '55' + digitos; // adiciona DDI Brasil se não informado
+  return digitos;
+}
+
+function enviarOrcamentoZap() {
+  const numero = formatarZapDestino(document.getElementById('orc-whatsapp').value);
+  if (!numero) { toast('⚠️ Informe o WhatsApp do cliente para enviar.'); return; }
+  const empresa = document.getElementById('cfg-nome')?.value || state.config?.nome || 'Empresa';
+  const cliente = document.getElementById('orc-cliente').value.trim() || '—';
+  const data = document.getElementById('orc-data').value;
+  const desc = document.getElementById('orc-desc').value.trim() || '—';
+  const valor = parseFloat(document.getElementById('orc-valor').value) || 0;
+  const validade = document.getElementById('orc-validade').value.trim() || '—';
+  const dataFmt = data ? new Date(data + 'T00:00:00').toLocaleDateString('pt-BR') : new Date().toLocaleDateString('pt-BR');
+  const valorFmt = valor.toLocaleString('pt-BR', { style:'currency', currency:'BRL' });
+
+  const msg = `📋 *Orçamento — ${empresa}*\n\n`
+    + `Olá, ${cliente}! Segue o orçamento solicitado:\n\n`
+    + `*Serviço:* ${desc}\n`
+    + `*Valor:* ${valorFmt}\n`
+    + `*Validade:* ${validade}\n`
+    + `*Data:* ${dataFmt}\n\n`
+    + `Qualquer dúvida estou à disposição!`;
+
+  window.open('https://wa.me/' + numero + '?text=' + encodeURIComponent(msg), '_blank');
+}
+
 // ─── ORÇAMENTO ───────────────────────────────────────────────────
 function imprimirOrcamento() {
   const empresa = document.getElementById('cfg-nome')?.value || state.config?.nome || 'Empresa';
@@ -2125,6 +2229,8 @@ function imprimirOrcamento() {
   const validade = document.getElementById('orc-validade').value.trim() || '—';
   const obs = document.getElementById('orc-obs').value.trim();
   const dataFmt = data ? new Date(data + 'T00:00:00').toLocaleDateString('pt-BR') : new Date().toLocaleDateString('pt-BR');
+  const logoSrc = getLogoSrc();
+  const logoHtml = logoSrc ? `<img src="${logoSrc}" alt="Logo" style="height:56px;max-width:220px;object-fit:contain;margin-bottom:10px">` : '';
 
   const win = window.open('', '_blank');
   if (!win) { alert('Seu navegador bloqueou a janela de impressão. Permita pop-ups para este site e tente novamente.'); return; }
@@ -2140,6 +2246,7 @@ function imprimirOrcamento() {
     .footer{margin-top:30px;padding-top:16px;border-top:1px solid #E0E0E0;font-size:12px;color:#9E9E9E;text-align:center}
     @media print{body{margin:20px}}
   </style></head><body>
+  ${logoHtml}
   <h1>📋 Orçamento — ${empresa}</h1>
   <div class="sub">Data: ${dataFmt}${zap ? ' · WhatsApp: ' + zap : ''}</div>
   <div class="box">
@@ -2159,7 +2266,7 @@ function imprimirOrcamento() {
   win.document.close();
 }
 function limparOrcamento() {
-  ['orc-cliente','orc-data','orc-desc','orc-valor','orc-validade','orc-obs'].forEach(id => {
+  ['orc-cliente','orc-data','orc-desc','orc-valor','orc-validade','orc-obs','orc-whatsapp'].forEach(id => {
     const el = document.getElementById(id); if(el) el.value = '';
   });
 }
@@ -2242,10 +2349,35 @@ function imprimirRecibo() {
 }
 
 function limparRecibo() {
-  ['rec-cliente','rec-data','rec-valor','rec-extenso','rec-desc','rec-numero'].forEach(id => {
+  ['rec-cliente','rec-data','rec-valor','rec-extenso','rec-desc','rec-numero','rec-whatsapp'].forEach(id => {
     const el = document.getElementById(id); if(el) el.value = '';
   });
   document.getElementById('recibo-preview').style.display = 'none';
+}
+
+function enviarReciboZap() {
+  const numero = formatarZapDestino(document.getElementById('rec-whatsapp').value);
+  if (!numero) { toast('⚠️ Informe o WhatsApp do cliente para enviar.'); return; }
+  const empresa = document.getElementById('cfg-nome')?.value || state.config?.nome || 'Padrão Elétrica';
+  const numeroRec = document.getElementById('rec-numero').value.trim() || '001/' + new Date().getFullYear();
+  const data = document.getElementById('rec-data').value;
+  const cliente = document.getElementById('rec-cliente').value.trim() || '—';
+  const valor = parseFloat(document.getElementById('rec-valor').value) || 0;
+  const desc = document.getElementById('rec-desc').value.trim() || '—';
+  const pagamento = document.getElementById('rec-pagamento').value;
+  const dataFmt = data ? new Date(data + 'T00:00:00').toLocaleDateString('pt-BR') : new Date().toLocaleDateString('pt-BR');
+  const valorFmt = valor.toLocaleString('pt-BR', { style:'currency', currency:'BRL' });
+
+  const msg = `🧾 *Recibo de Pagamento — ${empresa}*\n\n`
+    + `Olá, ${cliente}! Segue o recibo referente ao serviço:\n\n`
+    + `*Nº do Recibo:* ${numeroRec}\n`
+    + `*Referente a:* ${desc}\n`
+    + `*Valor:* ${valorFmt}\n`
+    + `*Forma de Pagamento:* ${pagamento}\n`
+    + `*Data:* ${dataFmt}\n\n`
+    + `Obrigado pela confiança!`;
+
+  window.open('https://wa.me/' + numero + '?text=' + encodeURIComponent(msg), '_blank');
 }
 
 // ─── ORDEM DE SERVIÇO ────────────────────────────────────────────
@@ -2263,6 +2395,8 @@ function imprimirOS() {
   const obs = document.getElementById('os-obs').value.trim();
   const dataFmt = data ? new Date(data + 'T00:00:00').toLocaleDateString('pt-BR') : new Date().toLocaleDateString('pt-BR');
   const statusTxt = { aberta: 'Aberta', em_andamento: 'Em Andamento', concluida: 'Concluída' }[status] || status;
+  const logoSrc = getLogoSrc();
+  const logoHtml = logoSrc ? `<img src="${logoSrc}" alt="Logo" style="height:56px;max-width:220px;object-fit:contain;margin-bottom:10px">` : '';
 
   const win = window.open('', '_blank');
   if (!win) { alert('Seu navegador bloqueou a janela de impressão. Permita pop-ups para este site e tente novamente.'); return; }
@@ -2281,6 +2415,7 @@ function imprimirOS() {
     .footer{margin-top:30px;padding-top:16px;border-top:1px solid #E0E0E0;font-size:12px;color:#9E9E9E;text-align:center}
     @media print{body{margin:20px}}
   </style></head><body>
+  ${logoHtml}
   <h1>🔧 Ordem de Serviço #${numero} — ${empresa}</h1>
   <div class="sub">Data: ${dataFmt} · Status: <span class="badge">${statusTxt}</span>${zap ? ' · ' + zap : ''}</div>
   <div class="box grid2">
@@ -2307,10 +2442,39 @@ function imprimirOS() {
   win.document.close();
 }
 function limparOS() {
-  ['os-numero','os-data','os-cliente','os-profissional','os-endereco','os-desc','os-valor','os-obs'].forEach(id => {
+  ['os-numero','os-data','os-cliente','os-profissional','os-endereco','os-desc','os-valor','os-obs','os-whatsapp'].forEach(id => {
     const el = document.getElementById(id); if(el) el.value = '';
   });
   const st = document.getElementById('os-status'); if(st) st.value = 'aberta';
+}
+
+function enviarOSZap() {
+  const numero = formatarZapDestino(document.getElementById('os-whatsapp').value);
+  if (!numero) { toast('⚠️ Informe o WhatsApp do cliente para enviar.'); return; }
+  const empresa = document.getElementById('cfg-nome')?.value || state.config?.nome || 'Empresa';
+  const numeroOS = document.getElementById('os-numero').value.trim() || '001';
+  const data = document.getElementById('os-data').value;
+  const cliente = document.getElementById('os-cliente').value.trim() || '—';
+  const profissional = document.getElementById('os-profissional').value.trim() || '—';
+  const endereco = document.getElementById('os-endereco').value.trim() || '—';
+  const desc = document.getElementById('os-desc').value.trim() || '—';
+  const valor = parseFloat(document.getElementById('os-valor').value) || 0;
+  const status = document.getElementById('os-status').value;
+  const dataFmt = data ? new Date(data + 'T00:00:00').toLocaleDateString('pt-BR') : new Date().toLocaleDateString('pt-BR');
+  const statusTxt = { aberta: 'Aberta', em_andamento: 'Em Andamento', concluida: 'Concluída' }[status] || status;
+  const valorFmt = valor.toLocaleString('pt-BR', { style:'currency', currency:'BRL' });
+
+  const msg = `🔧 *Ordem de Serviço #${numeroOS} — ${empresa}*\n\n`
+    + `Olá, ${cliente}! Segue a O.S. referente ao seu atendimento:\n\n`
+    + `*Profissional:* ${profissional}\n`
+    + `*Endereço:* ${endereco}\n`
+    + `*Serviço:* ${desc}\n`
+    + `*Valor:* ${valorFmt}\n`
+    + `*Status:* ${statusTxt}\n`
+    + `*Data:* ${dataFmt}\n\n`
+    + `Qualquer dúvida estou à disposição!`;
+
+  window.open('https://wa.me/' + numero + '?text=' + encodeURIComponent(msg), '_blank');
 }
 
 function abrirAppCliente() {
@@ -2398,7 +2562,7 @@ function renderTelaPublica(etapa) {
           <div><div style="font-size:14px;font-weight:600">Sem preferência</div><div style="font-size:12px;color:var(--text2)">Qualquer profissional disponível</div></div>
         </div>
         ${profsAtivos.map(p => `
-          <div class="prof-option" onclick="pubSelecionarProf('${p.nome}')">
+          <div class="prof-option" onclick="pubSelecionarProf('${p.nome.replace(/'/g,"\\'")}')">
             <div class="client-avatar" style="width:36px;height:36px;font-size:14px">${p.nome[0].toUpperCase()}</div>
             <div><div style="font-size:14px;font-weight:600">${p.nome}</div><div style="font-size:12px;color:var(--text2)">${p.esp || ''}</div></div>
           </div>`).join('')}
@@ -2415,7 +2579,7 @@ function renderTelaPublica(etapa) {
       const dow = d.getDay();
       const h = horarios[dow];
       if (!h || !h.ativo) continue;
-      const ds = d.toISOString().split('T')[0];
+      const ds = toLocalISODate(d);
       const dname = DIAS_PT[dow];
       diasHTML += `<div onclick="pubSelecionarData('${ds}','${h.inicio}','${h.fim}')" style="border:2px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:border-color .15s" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--border)'">
         <div>
@@ -2441,14 +2605,29 @@ function renderTelaPublica(etapa) {
     const fim = pubAg.hrFim || '18:00';
     const srv = state.servicos.find(s => s.id === pubAg.servicoId);
     const duracao = srv ? srv.duracao : 60;
-    const horasOcupadas = state.agendamentos.filter(a => a.data === pubAg.data).map(a => a.hora);
+    // Considera apenas agendamentos do mesmo dia e (quando um profissional específico foi
+    // escolhido) do mesmo profissional, calculando sobreposição por duração — não só o horário exato.
+    const ocupados = state.agendamentos
+      .filter(a => a.data === pubAg.data && a.status !== 'cancelado')
+      .filter(a => !pubAg.profissional || a.profissional === pubAg.profissional)
+      .map(a => {
+        const srvA = state.servicos.find(s => s.nome === a.servico);
+        const durA = srvA ? srvA.duracao : 60;
+        const [hA, mA] = (a.hora || '00:00').split(':').map(Number);
+        const ini = hA * 60 + mA;
+        return { ini, fim: ini + durA };
+      });
+    function horarioLivre(slotIni) {
+      const slotFim = slotIni + duracao;
+      return !ocupados.some(o => slotIni < o.fim && slotFim > o.ini);
+    }
     // gerar slots
     let slots = [];
     let [h, m] = inicio.split(':').map(Number);
     const [hf, mf] = fim.split(':').map(Number);
     while (h * 60 + m + duracao <= hf * 60 + mf) {
       const slot = String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
-      if (!horasOcupadas.includes(slot)) slots.push(slot);
+      if (horarioLivre(h * 60 + m)) slots.push(slot);
       m += 30;
       if (m >= 60) { m -= 60; h++; }
     }
@@ -2575,6 +2754,30 @@ function pubAbrirZapPessoal() {
 
 // ─── INIT ────────────────────────────────────────────────────────
 (async function initAdmin() {
+  // ── Detecta acesso via link público do cliente (?cliente=1) ──
+  // Quando o cliente abre o link gerado em "Meu App", carregamos os dados
+  // do banco e mostramos direto a tela de agendamento público, escondendo
+  // todo o painel administrativo (sidebar, topo, botões de admin).
+  const ehAcessoCliente = new URLSearchParams(window.location.search).get('cliente') === '1';
+
+  if (ehAcessoCliente) {
+    document.getElementById('sidebar').style.display = 'none';
+    document.getElementById('main').style.display = 'none';
+    const fab = document.getElementById('edit-fab'); if (fab) fab.style.display = 'none';
+    const btnInst = document.getElementById('btn-instalar-admin'); if (btnInst) btnInst.style.display = 'none';
+    const btnFechar = document.getElementById('pub-btn-fechar'); if (btnFechar) btnFechar.style.display = 'none';
+    document.title = 'Agendar serviço';
+
+    await carregar();
+    if (state.config.cor) document.documentElement.style.setProperty('--primary', state.config.cor);
+    abrirTelaPublica();
+
+    // fecharPublica() normalmente só esconde a tela; como aqui não há painel
+    // por trás para voltar, mantemos a tela pública sempre visível.
+    document.getElementById('tela-publica').style.position = 'fixed';
+    return; // não inicializa o restante do painel administrativo
+  }
+
   await carregar();
   // Inicializa o rastreio de exclusões com o que veio do banco
   _ultimosIdsSolicitacoes = new Set(state.solicitacoes.map(s => s.id));
@@ -2632,8 +2835,6 @@ function pubAbrirZapPessoal() {
   gap:8px;
   white-space:nowrap;
 ">⬇️ Instalar app</div>
-
-</html>
 
 <!-- ══════════════════════════════════════════════════
      PAINEL DE EDIÇÃO VISUAL - Botão flutuante
@@ -3368,8 +3569,15 @@ function epBaixarHTML() {
   // Reabrir editor para gerar o HTML
   setTimeout(() => {
     try {
+      // Garante que nenhum toast/notificação temporária seja exportado "preso" na tela
+      const toastEl = document.getElementById('toast');
+      const toastWasShowing = toastEl && toastEl.classList.contains('show');
+      if (toastWasShowing) toastEl.classList.remove('show');
+
       // Clonar o documento atual
       const html = document.documentElement.outerHTML;
+
+      if (toastWasShowing) toastEl.classList.add('show');
 
       // Injetar as alterações de Supabase no conteúdo
       let htmlFinal = html;
