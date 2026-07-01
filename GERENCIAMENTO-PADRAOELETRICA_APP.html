@@ -1284,15 +1284,38 @@ async function salvar() {
 // Guarda os ids vistos na última carga para detectar exclusões locais
 let _ultimosIdsSolicitacoes = new Set();
 let _ultimosIdsAgendamentos = new Set();
+let _ultimosIdsClientes = new Set();
+let _ultimosIdsServicos = new Set();
+let _ultimosIdsProfissionais = new Set();
+let _ultimosIdsTransacoes = new Set();
 async function sincronizarExclusoes() {
   const idsSolAtuais = new Set(state.solicitacoes.map(s => s.id));
   const idsAgAtuais = new Set(state.agendamentos.map(a => a.id));
+  const idsClAtuais = new Set(state.clientes.map(c => c.id));
+  const idsSrvAtuais = new Set(state.servicos.map(s => s.id));
+  const idsProfAtuais = new Set(state.profissionais.map(p => p.id));
+  const idsTrAtuais = new Set(state.transacoes.map(t => t.id));
+
   const solsRemovidas = [..._ultimosIdsSolicitacoes].filter(id => !idsSolAtuais.has(id));
   const agsRemovidos = [..._ultimosIdsAgendamentos].filter(id => !idsAgAtuais.has(id));
+  const clsRemovidos = [..._ultimosIdsClientes].filter(id => !idsClAtuais.has(id));
+  const srvRemovidos = [..._ultimosIdsServicos].filter(id => !idsSrvAtuais.has(id));
+  const profRemovidos = [..._ultimosIdsProfissionais].filter(id => !idsProfAtuais.has(id));
+  const trRemovidas = [..._ultimosIdsTransacoes].filter(id => !idsTrAtuais.has(id));
+
   if (solsRemovidas.length) await sb.from('solicitacoes').delete().in('id', solsRemovidas);
   if (agsRemovidos.length) await sb.from('agendamentos').delete().in('id', agsRemovidos);
+  if (clsRemovidos.length) await sb.from('clientes').delete().in('id', clsRemovidos);
+  if (srvRemovidos.length) await sb.from('servicos').delete().in('id', srvRemovidos);
+  if (profRemovidos.length) await sb.from('profissionais').delete().in('id', profRemovidos);
+  if (trRemovidas.length) await sb.from('transacoes').delete().in('id', trRemovidas);
+
   _ultimosIdsSolicitacoes = idsSolAtuais;
   _ultimosIdsAgendamentos = idsAgAtuais;
+  _ultimosIdsClientes = idsClAtuais;
+  _ultimosIdsServicos = idsSrvAtuais;
+  _ultimosIdsProfissionais = idsProfAtuais;
+  _ultimosIdsTransacoes = idsTrAtuais;
 }
 
 // ─── HELPERS ─────────────────────────────────────────────────────
@@ -2782,6 +2805,10 @@ function pubAbrirZapPessoal() {
   // Inicializa o rastreio de exclusões com o que veio do banco
   _ultimosIdsSolicitacoes = new Set(state.solicitacoes.map(s => s.id));
   _ultimosIdsAgendamentos = new Set(state.agendamentos.map(a => a.id));
+  _ultimosIdsClientes = new Set(state.clientes.map(c => c.id));
+  _ultimosIdsServicos = new Set(state.servicos.map(s => s.id));
+  _ultimosIdsProfissionais = new Set(state.profissionais.map(p => p.id));
+  _ultimosIdsTransacoes = new Set(state.transacoes.map(t => t.id));
 
   // Preencher forms de config
   document.getElementById('cfg-nome').value = state.config.nome;
