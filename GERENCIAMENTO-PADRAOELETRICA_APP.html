@@ -510,10 +510,10 @@ function instalarAdmin() {
           </div>
         </div>
 
-        <!-- GRÁFICO DE BARRA HORIZONTAL: Satisfação por Serviços -->
+        <!-- GRÁFICO DE BARRA HORIZONTAL: Serviços menos solicitados -->
         <div class="card" style="display:flex;flex-direction:column">
           <div class="section-header" style="margin-bottom:12px">
-            <h3>Satisfação pelo Serviço</h3>
+            <h3>Serviços menos solicitados</h3>
           </div>
           <div style="position:relative;flex:1;min-height:180px">
             <canvas id="chart-rosca" style="width:100%;height:100%"></canvas>
@@ -1055,7 +1055,19 @@ Acesse o app para confirmar ou cancelar.</textarea>
           <option value="📷">📷 Câmeras de Segurança</option>
           <option value="🪑">🪑 Montagem de Móveis</option>
           <option value="🏗️">🏗️ Construção Civil</option>
-          <option value="🔨">🔨 Outros</option>
+          <option value="🎨">🎨 Pintura</option>
+          <option value="❄️">❄️ Ar Condicionado</option>
+          <option value="🔑">🔑 Chaveiro</option>
+          <option value="🧹">🧹 Limpeza</option>
+          <option value="🪚">🪚 Marcenaria</option>
+          <option value="🪟">🪟 Vidraçaria</option>
+          <option value="🧱">🧱 Alvenaria</option>
+          <option value="🌳">🌳 Jardinagem</option>
+          <option value="🐜">🐜 Dedetização</option>
+          <option value="📦">📦 Mudanças</option>
+          <option value="🚪">🚪 Portões e Portas</option>
+          <option value="🏠">🏠 Telhados</option>
+          <option value="🛠️">🛠️ Manutenção Geral</option>
         </select>
       </div>
       <div class="form-group"><label class="form-label">Nome</label><input class="form-input" id="srv-nome" placeholder="Ex: Instalação de tomadas"></div>
@@ -1542,7 +1554,7 @@ function confirmarSolicita(id) {
   if (!s) return;
   s.status = 'confirmado';
   // Criar agendamento real
-  const ag = { id: uid(), origemId: s.id, cliente: s.cliente, data: s.data, hora: s.hora, zap: s.zap, servico: s.servico, profissional: s.profissional, obs: s.obs, status: 'confirmado', valor: s.valor || 0, origem: 'formulario' };
+  const ag = { id: uid(), origemId: s.id, cliente: s.cliente, data: s.data, hora: s.hora, zap: s.zap, servico: s.servico, icone: s.icone, profissional: s.profissional, obs: s.obs, status: 'confirmado', valor: s.valor || 0, origem: 'formulario' };
   state.agendamentos.push(ag);
   // Auto-registrar cliente
   if (!state.clientes.find(c => c.nome === s.cliente)) {
@@ -1649,6 +1661,7 @@ function renderAgenda() {
         <div style="display:flex;gap:4px">
           ${a.status === 'pendente' ? `<button class="btn btn-sm" style="background:var(--green-light);color:var(--green);border:1px solid #c8e6c9" onclick="confirmarAg('${a.id}')" title="Confirmar agendamento">✓</button>` : ''}
           ${a.status === 'confirmado' ? `<button class="btn btn-sm" style="background:var(--primary-light);color:var(--primary);border:1px solid #90caf9" onclick="marcarConcluido('${a.id}')" title="Marcar serviço como concluído">✅ Concluir</button>` : ''}
+          ${a.status !== 'pendente' ? `<button class="btn btn-sm" style="background:var(--yellow-light);color:#F57F17;border:1px solid #ffe082" onclick="marcarPendente('${a.id}')" title="Marcar como pendente">⏳ Pendente</button>` : ''}
           ${a.zap ? `<a href="${zapLink(a.zap, 'Olá '+a.cliente+'!')}" target="_blank" class="btn btn-sm btn-green">💬</a>` : ''}
           <button class="btn btn-sm" style="background:var(--red-light);color:var(--red);border:1px solid #ffcdd2" onclick="excluirAg('${a.id}')">🗑️</button>
         </div>
@@ -1674,6 +1687,7 @@ function salvarAgendamento() {
     obs: document.getElementById('ag-obs').value,
     zap: document.getElementById('ag-zap').value,
     servico,
+    icone: srv ? srv.icone : '',
     profissional: document.getElementById('ag-profissional').value,
     status: 'confirmado', valor: srv ? srv.preco : 0,
   };
@@ -1702,6 +1716,12 @@ function marcarConcluido(id) {
   a.status = 'concluido';
   a.concluidoEm = new Date().toISOString();
   salvar(); renderAgenda(); renderDashboard(); toast('✅ Serviço marcado como concluído!');
+}
+function marcarPendente(id) {
+  const a = state.agendamentos.find(x => x.id === id);
+  if (!a) return;
+  a.status = 'pendente';
+  salvar(); renderAgenda(); renderDashboard(); toast('⏳ Serviço marcado como pendente!');
 }
 function excluirAg(id) {
   if (!confirm('Excluir agendamento?')) return;
@@ -1873,7 +1893,34 @@ const SERVICOS_EMPRESA = [
   'Montagem de Móveis',
   'Construção Civil',
 ];
-const PIZZA_COLORS = ['#1565C0','#FF6F00','#2E7D32','#7B1FA2','#00838F','#C62828'];
+// Paleta com cores suficientes para todas as categorias possíveis (a última é reservada para "Outros")
+const PIZZA_COLORS = ['#1565C0','#FF6F00','#2E7D32','#7B1FA2','#00838F','#C62828','#6D4C41','#AD1457','#0277BD','#558B2F','#EF6C00','#5E35B1','#00695C','#D81B60','#3949AB','#8D6E63','#43A047','#FB8C00'];
+// Mapa fixo: ícone/categoria cadastrado no serviço → nome usado no gráfico de pizza.
+// Usar o ícone (em vez do texto digitado) garante que a categorização bata sempre,
+// mesmo que o nome do serviço tenha variações de texto (ex: "cabeadas/wiffi").
+// Cada ícone tem seu próprio nome de categoria — "Outros" (🔨) é reservado só para essa opção específica,
+// nunca para os outros ícones (ex: "🛠️ Manutenção Geral" agora aparece como sua própria fatia).
+const ICONE_PARA_CATEGORIA = {
+  '⚡': 'Instalações e Manutenções Elétricas',
+  '🔧': 'Serviços em Encanações Hidráulicas',
+  '📷': 'Instalações de Circuitos de Câmeras',
+  '🪑': 'Montagem de Móveis',
+  '🏗️': 'Construção Civil',
+  '🎨': 'Pintura',
+  '❄️': 'Ar Condicionado',
+  '🔑': 'Chaveiro',
+  '🧹': 'Limpeza',
+  '🪚': 'Marcenaria',
+  '🪟': 'Vidraçaria',
+  '🧱': 'Alvenaria',
+  '🌳': 'Jardinagem',
+  '🐜': 'Dedetização',
+  '📦': 'Mudanças',
+  '🚪': 'Portões e Portas',
+  '🏠': 'Telhados',
+  '🛠️': 'Manutenção Geral',
+  '🔨': 'Outros',
+};
 
 function renderDashboard() {
   const hoje = today();
@@ -1960,23 +2007,43 @@ function renderDashboard() {
   // GRÁFICO 1 — PIZZA: Serviços mais solicitados
   // ─────────────────────────────────────────────────────────────────
   const srvCountEmp = {};
-  SERVICOS_EMPRESA.forEach(s => srvCountEmp[s] = 0);
+  // Todas as categorias possíveis (na ordem do seletor de ícone), para manter cores/ordem estáveis
+  const TODAS_CATEGORIAS = Object.values(ICONE_PARA_CATEGORIA).filter((v, i, arr) => arr.indexOf(v) === i);
+  // Ordem de primeira aparição das categorias "livres" (sem ícone reconhecido), para cor estável entre renders
+  const categoriasLivres = [];
   state.agendamentos.forEach(a => {
     if (!a.servico) return;
-    // tenta casar com os serviços fixos (case insensitive parcial)
-    const key = SERVICOS_EMPRESA.find(s => s.toLowerCase().includes(a.servico.toLowerCase()) || a.servico.toLowerCase().includes(s.toLowerCase().split(' ')[0]));
-    if (key) srvCountEmp[key]++;
-    else {
-      // serviço cadastrado no sistema que não está na lista — soma em "Outros"
-      srvCountEmp['Outros'] = (srvCountEmp['Outros'] || 0) + 1;
+    // 1) método principal: casa pela categoria/ícone real do serviço (não pelo texto digitado)
+    let key = ICONE_PARA_CATEGORIA[a.icone];
+    // 2) fallback: agendamentos antigos sem ícone salvo — tenta casar com o cadastro de Serviços pelo nome
+    if (!key) {
+      const srvCadastrado = state.servicos.find(sv => sv.nome === a.servico);
+      if (srvCadastrado) key = ICONE_PARA_CATEGORIA[srvCadastrado.icone];
     }
+    // 3) tenta casar por aproximação de texto com uma categoria já conhecida
+    if (!key) {
+      key = TODAS_CATEGORIAS.find(s => s !== 'Outros' && (s.toLowerCase().includes(a.servico.toLowerCase()) || a.servico.toLowerCase().includes(s.toLowerCase().split(' ')[0])));
+    }
+    // 4) Automático: todo serviço solicitado deve aparecer no gráfico — usa o próprio nome do
+    //    serviço como categoria quando nada foi reconhecido, em vez de descartar ("Outros" removido).
+    if (!key) {
+      key = a.servico.trim();
+      if (!categoriasLivres.includes(key)) categoriasLivres.push(key);
+    }
+    srvCountEmp[key] = (srvCountEmp[key] || 0) + 1;
   });
 
   const totalAgsEmp = Object.values(srvCountEmp).reduce((a,b)=>a+b,0);
-  // Inclui "Outros" no gráfico (quando houver) para que o total exibido bata com o total real
-  const temOutros = (srvCountEmp['Outros'] || 0) > 0;
-  const pizzaLabels = temOutros ? [...SERVICOS_EMPRESA, 'Outros'] : SERVICOS_EMPRESA;
-  const pizzaColors = temOutros ? [...PIZZA_COLORS, '#9E9E9E'] : PIZZA_COLORS;
+  // Mostra todas as categorias com agendamentos: primeiro as conhecidas (ordem fixa do seletor),
+  // depois as "livres" (nomes automáticos) na ordem em que apareceram.
+  const pizzaLabels = TODAS_CATEGORIAS.filter(s => s !== 'Outros' && srvCountEmp[s] > 0)
+    .concat(categoriasLivres.filter(s => srvCountEmp[s] > 0));
+  const pizzaColors = pizzaLabels.map((s, i) => {
+    const idxFixo = TODAS_CATEGORIAS.indexOf(s);
+    // categorias conhecidas usam sempre a mesma cor da paleta; categorias livres usam
+    // a próxima cor disponível na paleta, continuando a sequência sem repetir as já usadas
+    return idxFixo !== -1 ? PIZZA_COLORS[idxFixo % PIZZA_COLORS.length] : PIZZA_COLORS[i % PIZZA_COLORS.length];
+  });
   const pizzaData = pizzaLabels.map(s => srvCountEmp[s] || 0);
 
   const pizzaCtx = document.getElementById('chart-pizza');
@@ -2017,12 +2084,21 @@ function renderDashboard() {
   // GRÁFICO 2 — COLUNAS VERTICAIS: Clientes que mais Solicitam Serviços
   // Top clientes ordenados por quantidade de serviços solicitados
   // ─────────────────────────────────────────────────────────────────
-  const clienteSrv = {};
+  // Agrupa por WhatsApp (identificador estável do cliente) em vez do nome digitado,
+  // pra evitar contar "juanna" e "juana" como pessoas diferentes por erro de digitação.
+  // Quando não há zap salvo, cai de volta pro nome (normalizado) como identificador.
+  const clienteSrv = {}; // chave: zap ou nome normalizado -> { nome, count }
   state.agendamentos.forEach(a => {
-    if (a.cliente) clienteSrv[a.cliente] = (clienteSrv[a.cliente] || 0) + 1;
+    if (!a.cliente) return;
+    const chave = a.zap ? a.zap.replace(/\D/g, '') : a.cliente.trim().toLowerCase();
+    if (!clienteSrv[chave]) clienteSrv[chave] = { nome: a.cliente, count: 0 };
+    clienteSrv[chave].count++;
   });
   // ordem crescente (menor para maior)
-  let clienteEntries = Object.entries(clienteSrv).sort((a,b) => a[1] - b[1]).slice(-8);
+  let clienteEntries = Object.values(clienteSrv)
+    .sort((a,b) => a.count - b.count)
+    .slice(-8)
+    .map(c => [c.nome, c.count]);
 
   const barCtx = document.getElementById('chart-barras');
   const barEmpty = document.getElementById('chart-barras-empty');
@@ -2062,25 +2138,23 @@ function renderDashboard() {
   }
 
   // ─────────────────────────────────────────────────────────────────
-  // GRÁFICO 3 — BARRA HORIZONTAL: Satisfação por Serviços
-  // Baseado na taxa de confirmação por tipo de serviço (%)
+  // GRÁFICO 3 — BARRA HORIZONTAL: Serviços menos solicitados
+  // Contagem de serviços, ordenado pelos menos solicitados
   // ─────────────────────────────────────────────────────────────────
-  const srvSat = {}; // { nome: { total, confirmados } }
+  const srvCount = {}; // { nome: contagem }
   state.agendamentos.forEach(a => {
     if (!a.servico) return;
-    if (!srvSat[a.servico]) srvSat[a.servico] = { total:0, conf:0 };
-    srvSat[a.servico].total++;
-    if (a.status === 'confirmado' || a.status === 'concluido') srvSat[a.servico].conf++;
+    srvCount[a.servico] = (srvCount[a.servico] || 0) + 1;
   });
-  let satEntries = Object.entries(srvSat)
-    .map(([n,v]) => [n, v.total > 0 ? Math.round((v.conf/v.total)*100) : 0])
-    .sort((a,b) => a[1] - b[1]); // crescente
+  let menorsolicitados = Object.entries(srvCount)
+    .map(([n,c]) => [n, c])
+    .sort((a,b) => a[1] - b[1]); // crescente - menos solicitados primeiro
 
   const roscaCtx = document.getElementById('chart-rosca');
   const roscaEmpty = document.getElementById('chart-rosca-empty');
   if (roscaCtx) {
     if (_chartRosca) { _chartRosca.destroy(); _chartRosca = null; }
-    if (!satEntries.length) {
+    if (!menorsolicitados.length) {
       roscaCtx.style.display = 'none';
       if (roscaEmpty) roscaEmpty.style.display = 'block';
     } else {
@@ -2089,11 +2163,11 @@ function renderDashboard() {
     _chartRosca = new Chart(roscaCtx, {
       type: 'bar',
       data: {
-        labels: satEntries.map(e => e[0].length > 18 ? e[0].slice(0,16)+'…' : e[0]),
+        labels: menorsolicitados.map(e => e[0].length > 18 ? e[0].slice(0,16)+'…' : e[0]),
         datasets: [{
-          label: 'Satisfação (%)',
-          data: satEntries.map(e => e[1]),
-          backgroundColor: satEntries.map(e => e[1] >= 90 ? '#2E7D32' : e[1] >= 75 ? '#1565C0' : '#FF6F00'),
+          label: 'Contagem',
+          data: menorsolicitados.map(e => e[1]),
+          backgroundColor: '#FF6F00',
           borderRadius: 4,
           borderSkipped: false,
         }]
@@ -2103,12 +2177,12 @@ function renderDashboard() {
         responsive: true, maintainAspectRatio: false,
         plugins: {
           legend: { display: false },
-          tooltip: { callbacks: { label: ctx => ` ${ctx.raw}% de satisfação` } }
+          tooltip: { callbacks: { label: ctx => ` ${ctx.raw} solicitações` } }
         },
         scales: {
           x: {
-            beginAtZero: true, max: 100,
-            ticks: { callback: v => v + '%', font:{size:10} },
+            beginAtZero: true,
+            ticks: { font:{size:10} },
             grid: { color:'#F0F0F0' }
           },
           y: { grid:{ display:false }, ticks:{ font:{size:10} } }
