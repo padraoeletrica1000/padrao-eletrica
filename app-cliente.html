@@ -606,7 +606,7 @@ const agora = new Date();
   const dataHoje = toLocalISODate(agora);
   const ehHoje = itemAtual.data === dataHoje;
 
-  while (h*60+m+duracao <= hf*60+mf) {
+  while (h*60+m <= hf*60+mf) {
     const slot = String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
     if (ehHoje) {
       const minutosSlot = h * 60 + m;
