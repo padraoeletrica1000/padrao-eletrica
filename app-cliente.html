@@ -326,6 +326,12 @@ async function gravarClienteSeNovo(cliente) {
 // HELPERS
 // ═══════════════════════════════════════════════════════════════════
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+function toLocalISODate(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const dia = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${dia}`;
+}
 function brl(v) { return 'R$ ' + (+v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
 function fmtDate(d) {
   if (!d) return '–';
@@ -531,7 +537,7 @@ function renderCal() {
     const d = new Date(calAno, calMes, dia);
     d.setHours(0,0,0,0);
     const dow = d.getDay();
-    const ds  = d.toISOString().split('T')[0];
+    const ds  = toLocalISODate(d);
     const h   = horarios[dow];
     const passado = d < hoje || (d.getTime() === hoje.getTime() && hojeFechadoParaAgendamento);
     const disponivel = h && h.ativo && !passado;
@@ -597,7 +603,7 @@ function renderHora(app) {
   let [h, m] = inicio.split(':').map(Number);
   const [hf, mf] = fim.split(':').map(Number);
 const agora = new Date();
-  const dataHoje = agora.toISOString().split('T')[0];
+  const dataHoje = toLocalISODate(agora);
   const ehHoje = itemAtual.data === dataHoje;
 
   while (h*60+m+duracao <= hf*60+mf) {
