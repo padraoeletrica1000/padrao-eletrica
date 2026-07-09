@@ -485,10 +485,12 @@ function escolherServico(id) {
 
 // ─── ETAPA 2: CALENDÁRIO ──────────────────────────────────────────
 function renderData(app) {
+  const agoraNota = new Date();
+  const fechadoHoje = agoraNota.getHours() >= 17;
   app.innerHTML = `
     <div class="back-link" onclick="ir('servico')">${SVG_BACK} Voltar</div>
     <div class="step-title">Escolha a data</div>
-    <div class="step-sub">Apenas datas com <b>disponibilidade</b> estão habilitadas.</div>
+    <div class="step-sub">Apenas datas com <b>disponibilidade</b> estão habilitadas.${fechadoHoje ? ' Agendamentos para hoje encerram às 17:00 — próximo horário disponível é amanhã.' : ''}</div>
     <div id="cal-container"></div>`;
   renderCal();
 }
@@ -501,6 +503,11 @@ function renderCal() {
   const hoje = new Date();
   hoje.setHours(0,0,0,0);
   const maxData = new Date(hoje); maxData.setDate(hoje.getDate()+90);
+
+  // ── Corte de horário: após as 17:00, o dia de hoje deixa de aceitar agendamento ──
+  const HORA_CORTE = 17;
+  const agoraCorte = new Date();
+  const hojeFechadoParaAgendamento = agoraCorte.getHours() >= HORA_CORTE;
 
   const primeiroDia = new Date(calAno, calMes, 1);
   const ultimoDia   = new Date(calAno, calMes+1, 0);
@@ -526,7 +533,7 @@ function renderCal() {
     const dow = d.getDay();
     const ds  = d.toISOString().split('T')[0];
     const h   = horarios[dow];
-    const passado = d < hoje;
+    const passado = d < hoje || (d.getTime() === hoje.getTime() && hojeFechadoParaAgendamento);
     const disponivel = h && h.ativo && !passado;
     const isHoje = d.getTime() === hoje.getTime();
 
