@@ -1300,7 +1300,8 @@ function solicitacaoDoBanco(row) {
 }
 function fotoDoBanco(row) {
   return { id: row.id, ts: row.ts, cliente: row.cliente, zap: row.zap,
-    servico: row.servico, url: row.url, obs: row.obs, status: row.status || 'novo' };
+    servico: row.tipo, url: row.url, obs: row.legenda, status: row.status || 'novo',
+    origem: row.origem };
 }
 function agendamentoDoBanco(row) {
   return { id: row.id, origemId: row.origem_id, cliente: row.cliente, zap: row.zap,
@@ -1324,7 +1325,7 @@ async function carregar() {
       sb.from('servicos').select('*'),
       sb.from('agendamentos').select('*'),
       sb.from('solicitacoes').select('*'),
-      sb.from('fotos').select('*'),
+      sb.from('fotos_clientes').select('*'),
       sb.from('profissionais').select('*'),
       sb.from('clientes').select('*'),
       sb.from('transacoes').select('*'),
@@ -1362,9 +1363,9 @@ async function salvar() {
         servico: a.servico, data: a.data, hora: a.hora, profissional: a.profissional,
         obs: a.obs, valor: a.valor, status: a.status, origem: a.origem,
       }))) : Promise.resolve(),
-      state.fotos.length ? sb.from('fotos').upsert(state.fotos.map(f => ({
-        id: f.id, ts: f.ts, cliente: f.cliente, zap: f.zap, servico: f.servico,
-        url: f.url, obs: f.obs, status: f.status,
+      state.fotos.length ? sb.from('fotos_clientes').upsert(state.fotos.map(f => ({
+        id: f.id, ts: f.ts, cliente: f.cliente, zap: f.zap, tipo: f.servico,
+        url: f.url, legenda: f.obs, status: f.status, origem: f.origem || 'app-cliente',
       }))) : Promise.resolve(),
     ]);
     // Remove no banco o que foi excluído localmente (solicitações/agendamentos)
@@ -1398,7 +1399,7 @@ async function sincronizarExclusoes() {
   const trRemovidas = [..._ultimosIdsTransacoes].filter(id => !idsTrAtuais.has(id));
 
   if (solsRemovidas.length) await sb.from('solicitacoes').delete().in('id', solsRemovidas);
-  if (ftsRemovidas.length) await sb.from('fotos').delete().in('id', ftsRemovidas);
+  if (ftsRemovidas.length) await sb.from('fotos_clientes').delete().in('id', ftsRemovidas);
   if (agsRemovidos.length) await sb.from('agendamentos').delete().in('id', agsRemovidos);
   if (clsRemovidos.length) await sb.from('clientes').delete().in('id', clsRemovidos);
   if (srvRemovidos.length) await sb.from('servicos').delete().in('id', srvRemovidos);
