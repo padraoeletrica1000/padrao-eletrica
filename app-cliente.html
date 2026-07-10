@@ -930,6 +930,9 @@ function renderFotos() {
           <img src="${f.url}" loading="lazy">
           <div class="foto-badge ${tipo}">${tipo}</div>
           <div class="fstatus">${f.status === 'aprovado' ? '✅' : '🕓'}</div>
+          <button type="button" class="foto-del-btn" title="Excluir foto"
+            onclick="excluirFotoCliente('${f.id}')"
+            style="position:absolute;top:6px;right:6px;width:26px;height:26px;border:none;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;font-size:14px;line-height:26px;text-align:center;cursor:pointer;padding:0">🗑️</button>
         </div>`).join('')}
     </div>`;
 
@@ -962,6 +965,32 @@ function renderFotos() {
 function selecionarTipoFoto(tipo) {
   tipoFotoSelecionado = tipo;
   renderFotos();
+}
+
+async function excluirFotoCliente(id) {
+  const f = state.fotos.find(x => x.id === id);
+  if (!f) return;
+  if (!confirm('Excluir esta foto? Essa ação não pode ser desfeita.')) return;
+
+  try {
+    // Remove o arquivo do Storage (se conseguirmos extrair o caminho da URL pública)
+    const marcador = '/fotos-clientes/';
+    const idx = (f.url || '').indexOf(marcador);
+    if (idx >= 0) {
+      const caminho = f.url.slice(idx + marcador.length);
+      await sb.storage.from('fotos-clientes').remove([caminho]);
+    }
+    // Remove o registro da tabela
+    await sb.from('fotos_clientes').delete().eq('id', id);
+  } catch(e) {
+    console.error('Erro ao excluir foto:', e);
+    toast('Não foi possível excluir a foto.');
+    return;
+  }
+
+  state.fotos = state.fotos.filter(x => x.id !== id);
+  renderFotos();
+  toast('🗑️ Foto excluída.');
 }
 
 async function onFotoInputChange(event) {

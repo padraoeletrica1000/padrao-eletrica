@@ -1760,11 +1760,24 @@ function fecharFotoModal() {
   document.getElementById('foto-modal-overlay').classList.remove('open');
   _fotoAtualId = null;
 }
-function excluirFoto() {
+async function excluirFoto() {
   if (!_fotoAtualId) return;
   if (!confirm('Excluir esta foto? Essa ação não pode ser desfeita.')) return;
+  const f = state.fotos.find(x => x.id === _fotoAtualId);
+
+  try {
+    const marcador = '/fotos-clientes/';
+    const idx = f && f.url ? f.url.indexOf(marcador) : -1;
+    if (idx >= 0) {
+      const caminho = f.url.slice(idx + marcador.length);
+      await sb.storage.from('fotos-clientes').remove([caminho]);
+    }
+    await sb.from('fotos_clientes').delete().eq('id', _fotoAtualId);
+  } catch(e) {
+    console.error('Erro ao excluir foto do Storage/banco:', e);
+  }
+
   state.fotos = state.fotos.filter(x => x.id !== _fotoAtualId);
-  salvar();
   fecharFotoModal();
   renderFotos();
   atualizarBadgeFotos();
