@@ -1088,14 +1088,9 @@ async function confirmarAgendamento() {
     return;
   }
 
-  // Abre WhatsApp do prestador com mensagem estruturada (igual à imagem 6)
-  if (state.config.zap) {
-    const linhas = carrinho.map(item =>
-      `*Cliente:* ${session.nome}\n*Serviço:* ${item.servico}\n*Data:* ${fmtDateShort(item.data)}\n*Horário:* ${item.hora}\n*Duração:* ${item.duracao||60}min\n*Valor:* ${brl(item.valor)}`
-    ).join('\n\n---\n\n');
-    const msg = `Olá! Acabei de agendar pelo link 📅\n\n${linhas}`;
-    setTimeout(() => window.open(zapLink(state.config.zap, msg), '_blank'), 400);
-  }
+  // Não abre mais o WhatsApp automaticamente — a solicitação já foi
+  // gravada direto no dashboard. O cliente pode falar no WhatsApp
+  // manualmente pelo botão "Falar agora no WhatsApp" na tela de sucesso.
 
   enviandoAgendamento = false;
 
