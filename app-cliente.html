@@ -671,6 +671,12 @@ function renderHora(app) {
   // agendamentos já existentes nesta data (usados para checar ocupação por profissional)
   const agendamentosData = (state.agendamentos||[]).filter(a => a.data === itemAtual.data);
 
+  // solicitações pendentes nesta data (ainda não confirmadas, mas já "reservam" o horário
+  // para não deixar dois clientes marcarem o mesmo horário antes da confirmação)
+  const solicitacoesData = (state.solicitacoes||[]).filter(
+    s => s.data === itemAtual.data && s.status !== 'cancelado'
+  );
+
   let slots = [];
   let [h, m] = inicio.split(':').map(Number);
   const [hf, mf] = fim.split(':').map(Number);
@@ -690,14 +696,19 @@ function renderHora(app) {
     }
     if (profsAtivos.length) {
       // procura o primeiro profissional ativo que esteja livre neste horário
+      // (considera tanto agendamentos confirmados quanto solicitações ainda pendentes)
       const profDisponivel = profsAtivos.find(p =>
-        !agendamentosData.some(a => a.hora === slot && a.profissional === p.nome)
+        !agendamentosData.some(a => a.hora === slot && a.profissional === p.nome) &&
+        !solicitacoesData.some(s => s.hora === slot && s.profissional === p.nome)
       );
       if (profDisponivel) slots.push({ hora: slot, profissional: profDisponivel.nome });
       // se nenhum profissional estiver livre, o horário fica de fora (totalmente ocupado)
     } else {
-      // sem profissionais cadastrados: verifica ocupação apenas pelo horário
-      if (!agendamentosData.some(a => a.hora === slot)) slots.push({ hora: slot, profissional: '' });
+      // sem profissionais cadastrados: verifica ocupação pelo horário
+      // (considera tanto agendamentos confirmados quanto solicitações pendentes)
+      const ocupado = agendamentosData.some(a => a.hora === slot) ||
+                      solicitacoesData.some(s => s.hora === slot);
+      if (!ocupado) slots.push({ hora: slot, profissional: '' });
     }
     m += 30; if (m >= 60) { m -= 60; h++; }
   }
