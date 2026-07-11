@@ -3122,7 +3122,7 @@ function pubAbrirZapPessoal() {
       if (document.getElementById('page-solicita').classList.contains('active')) renderSolicita();
       renderDashboard();
     })
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'fotos' }, async () => {
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'fotos_clientes' }, async () => {
       await carregar();
       _ultimosIdsFotos = new Set(state.fotos.map(f => f.id));
       atualizarBadgeFotos();
